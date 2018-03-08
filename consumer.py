@@ -2,6 +2,10 @@ import yaml
 from lib.rabbitmq import Rabbit
 import requests
 from readability.readability import Document
+from article import Article
+import json
+import datetime
+import re
 
 setting = yaml.load(open('config_local.yaml'))
 
@@ -17,20 +21,38 @@ class Consumer:
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
     @staticmethod
-    def callback(ch, method, properties, body):
-        url = body.decode()
-        print(url)
-        url = 'http://m.haiwainet.cn/ttc/3541093/2018/0305/content_31270748_1.html?tt_group_id=6529362026471358979'
+    def parse_html(url):
         res = requests.get(url=url, headers=headers)
+        # 切割url()
+        # article_id = re.search('\d+', url).group()
+        if 'articleInfo' in res.text:
+            # 今日头条的url
+            readable_title = Document(res.content).short_title()
+            readable_article = re.search("articleInfo.*?content.*?'(.*?)'", res.content.decode(), re.S | re.M).group(1)
+        else:
+            # 其他来源的文章
+            readable_title = Document(res.content).short_title()
+            readable_article = Document(res.content).summary()
+        return readable_title, readable_article
 
-        readable_article = Document(res.content).summary()
-        readable_title = Document(res.content).short_title()
+    def callback(self, ch, method, properties, body):
+        body = json.loads(body.decode())
+        print(body)
 
-        print(readable_article)
-        # print(readable_title)
+        article = Article(body['source'])
+        article.dict_to_attr(body)
+        print(article.dict_to_attr(body))
+        url = article.url
+        readable_title, readable_article = self.parse_html(url)
 
+        article.title = readable_title
+        article.body = readable_article
+
+        article.crawler_time = datetime.datetime.now()
+        article.insert_db()
+        print('一篇文张入库成功')
         # 消费一条消息成功
-        # ch.basic_ack(delivery_tag=method.delivery_tag)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_consume(self):
         channel = self.rabbit.get_channel()
