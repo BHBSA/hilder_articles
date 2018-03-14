@@ -6,8 +6,10 @@ from article import Article
 import json
 import datetime
 import re
+from html.parser import HTMLParser
 
 setting = yaml.load(open('config_local.yaml'))
+html_parser = HTMLParser()
 
 headers = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119Safari/537.36",
@@ -28,7 +30,8 @@ class Consumer:
         if 'articleInfo' in res.text:
             # 今日头条的url
             readable_title = Document(res.content).short_title()
-            readable_article = re.search("articleInfo.*?content.*?'(.*?)'", res.content.decode(), re.S | re.M).group(1)
+            readable_article_ = re.search("articleInfo.*?content.*?'(.*?)'", res.content.decode(), re.S | re.M).group(1)
+            readable_article = html_parser.unescape(readable_article_)
         else:
             # 其他来源的文章
             readable_title = Document(res.content).short_title()
