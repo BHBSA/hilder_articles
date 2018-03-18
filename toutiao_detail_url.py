@@ -61,7 +61,10 @@ class Toutiao:
                 print('bloom_filter不存在，插入article_id!')
 
                 article = Article('今日头条')
-
+                try:
+                    article.organization_author = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/div/a[2]').text
+                except Exception as e:
+                    print('没有organization_author')
                 title = i.find_element_by_xpath('div/div[1]/div/div[1]/a').text
                 article.title = title
                 url = i.find_element_by_xpath('div/div[1]/div/div[1]/a').get_attribute('href')
