@@ -21,7 +21,7 @@ def serialization_info(info):
 
 class Article:
     def __init__(self, source, url=None, title=None, body=None, article_id=None, post_time=None, title_img=None,
-                 comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None):
+                 comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None,organization_author=None):
         self.source = source  # 文章来源
         self.url = url  # 链接
         self.title = title  # 标题 数组
@@ -35,6 +35,7 @@ class Article:
         self.post_time = post_time  # 文章发布时间 str
         self.crawler_time = crawler_time
         self.status = 0
+        self.organization_author = organization_author
         # self.crawler_time = datetime.datetime.now()  # 抓取时间
 
         self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'], setting['mongo']['db_name'],

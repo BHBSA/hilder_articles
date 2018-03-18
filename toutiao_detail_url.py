@@ -19,7 +19,6 @@ class Toutiao:
 
         self.driver = webdriver.Chrome(chrome_options=browser)
 
-
         self.bf = BloomFilter(host=setting['redies_host'],
                               port=setting['redis_port'],
                               key='article_toutiao_test',
@@ -85,6 +84,7 @@ class Toutiao:
 
                 print(article.to_dict())
                 # 没有在过滤器的文章加入rabbitmq
+
                 channel.basic_publish(exchange='',
                                       routing_key='article_test',
                                       body=json.dumps(article.to_dict()))
