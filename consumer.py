@@ -7,6 +7,7 @@ import json
 import datetime
 import re
 from html.parser import HTMLParser
+import chardet
 
 setting = yaml.load(open('config_local.yaml'))
 html_parser = HTMLParser()
@@ -34,8 +35,11 @@ class Consumer:
             readable_article = html_parser.unescape(readable_article_)
         else:
             # 其他来源的文章
-            readable_title = Document(res.content).short_title()
-            readable_article = Document(res.content).summary()
+            html_byte = re.sub(b'<script.*script>', b'', res.content, )
+            encode_dict = chardet.detect(html_byte)
+            encode_type = encode_dict['encoding']
+            readable_title = Document(html_byte.decode(encode_type)).short_title()
+            readable_article = Document(html_byte.decode(encode_type)).summary()
         return readable_title, readable_article
 
     def callback(self, ch, method, properties, body):

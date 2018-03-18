@@ -1,20 +1,20 @@
-from lib.mongo import Mongo
 import re
+import requests
+import chardet
+from readability.readability import Document
 
-# m = Mongo(host='192.168.0.136', port=27017, db_name='fangjia_youfang', collection_name='news_library')
-# coll = m.get_collection_object()
-# article = coll.find_one({"title": "提前了解这些，按揭买房更顺利通过"})
-# # articles = coll.find()
-# # print(article['body'])
-#
-#
-# print(article['body'])
-# def change(url):
-#     return url.replace('&quot;', '')
-#
-# for i in articles:
-#     url_list = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',change,
-#                            i['body'],
-#                            re.S | re.M, )
+res = requests.get(
+    'https://m.fang.com/zhishi/xf/qg_341544.html?sf_source=ttcollaborate&tt_group_id=6521592606474895885')
 
-url = 'http://p3.pstatp.com/large/6c3400010f07273f5379'
+html_byte = re.sub(b'<script.*script>', b'', res.content,)
+
+# print(chardet.detect(html_byte))
+
+html = html_byte.decode(chardet.detect(html_byte)['encoding'])
+
+
+readable_title = Document(html).short_title()
+readable_article = Document(html).summary()
+
+print(readable_title)
+print(readable_article)
