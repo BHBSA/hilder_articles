@@ -34,7 +34,7 @@ class Toutiao:
         while True:
             self.find_list_info(channel)
             self.driver.refresh()
-            time.sleep(20)
+            # time.sleep(20)
 
     def find_list_info(self, channel):
         article_list = self.driver.find_elements_by_xpath('/html/body/div/div[4]/div[2]/div[2]/div/div/div/ul/li')
@@ -62,7 +62,9 @@ class Toutiao:
 
                 article = Article('今日头条')
                 try:
-                    article.organization_author = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/div/a[2]').text
+                    organization_author = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/div/a[2]').text.replace(
+                        '⋅', '')
+                    article.organization_author = organization_author.strip()
                 except Exception as e:
                     print('没有organization_author')
                 title = i.find_element_by_xpath('div/div[1]/div/div[1]/a').text
