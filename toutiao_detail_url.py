@@ -34,7 +34,7 @@ class Toutiao:
         while True:
             self.find_list_info(channel)
             self.driver.refresh()
-            # time.sleep(20)
+            time.sleep(20)
 
     def find_list_info(self, channel):
         article_list = self.driver.find_elements_by_xpath('/html/body/div/div[4]/div[2]/div[2]/div/div/div/ul/li')
