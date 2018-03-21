@@ -71,8 +71,8 @@ class Toutiao:
                 article.title = title
                 url = i.find_element_by_xpath('div/div[1]/div/div[1]/a').get_attribute('href')
                 article.url = url
-                post_time = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/span').text
-                article.post_time = post_time
+                # post_time = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/span').text
+                # article.post_time = post_time
 
                 try:
                     comment_str = i.find_element_by_xpath('div/div[1]/div/div[2]/div[1]/div/a[3]').text

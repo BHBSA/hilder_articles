@@ -8,6 +8,7 @@ import datetime
 import re
 from html.parser import HTMLParser
 import chardet
+from lxml import etree
 
 setting = yaml.load(open('config_local.yaml'))
 html_parser = HTMLParser()
@@ -24,8 +25,9 @@ class Consumer:
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
     @staticmethod
-    def parse_html(url):
-        res = requests.get(url=url, headers=headers)
+    def parse_html(res):
+        # res = requests.get(url=url, headers=headers)
+
         # 切割url()
         # article_id = re.search('\d+', url).group()
         if 'articleInfo' in res.text:
@@ -42,6 +44,15 @@ class Consumer:
             readable_article = Document(html_byte.decode(encode_type)).summary()
         return readable_title, readable_article
 
+    @staticmethod
+    def get_post_time(res):
+        if 'articleInfo' in res.text:
+            # 今日头条的url
+            time = re.search("time: '(.*?)'", res.content.decode(), re.S | re.M).group(1)
+            return time
+        else:
+            return None
+
     def callback(self, ch, method, properties, body):
         body = json.loads(body.decode())
         print(body)
@@ -50,7 +61,10 @@ class Consumer:
         article.dict_to_attr(body)
         print(article.dict_to_attr(body))
         url = article.url
-        readable_title, readable_article = self.parse_html(url)
+
+        res = requests.get(url=url, headers=headers)
+        readable_title, readable_article = self.parse_html(res)
+        article.post_time = self.get_post_time(res)
 
         article.title = readable_title
         article.body = readable_article
