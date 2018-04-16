@@ -66,12 +66,15 @@ class Consumer:
         readable_title, readable_article = self.parse_html(res)
         article.post_time = self.get_post_time(res)
 
-        article.title = readable_title
+        # article.title = readable_title
         article.body = readable_article
 
         article.crawler_time = datetime.datetime.now()
-        article.insert_db()
-        print('一篇文张入库成功')
+        if '<body id=\"readabilityBody\">\n\n</body>\n' in article.body:
+            print("文章为空")
+        else:
+            article.insert_db()
+            print('一篇文张入库成功')
         # 消费一条消息成功
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
