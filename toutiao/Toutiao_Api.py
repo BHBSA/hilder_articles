@@ -5,7 +5,9 @@ from lib.rabbitmq import Rabbit
 import re
 import yaml
 from article import Article
-
+from toutiao.comment_temp import Comment_url
+import datetime
+import time
 setting = yaml.load(open('./config_local.yaml'))
 
 class Toutiao():
@@ -14,7 +16,7 @@ class Toutiao():
 
         }
         self.start_url = "http://is.snssdk.com/api/news/feed/v46/?category=news_house"
-        self.proxy = {"http":"http://192.168.0.94:3234"}
+        self.proxy = {"http":"http://192.168.0.94:4234"}
         self.bf = BloomFilter(host=setting['redies_host'],
                               port=setting['redis_port'],
                               key='article_toutiao_test',
@@ -29,6 +31,7 @@ class Toutiao():
         while True:
             try:
                 self.url_list_crawler(channel)
+                time.sleep(60)
             except:
                 continue
 
@@ -56,23 +59,28 @@ class Toutiao():
                     # res = requests.get(url,headers=self.headers)
                     # print(res.status_code)
                     article = Article('今日头条')
+                    comment_code = Comment_url()
                     try:
                         organization_author = re.search('\\"source\\":\\"(.*?)\\"',con).group(1)
                         article.organization_author = organization_author
                     except Exception as e:
                         print('没有organization_author')
-                    title = re.findall('\\"title\\":\\"(.*?)\\"',con)[0]
+                    title = re.findall('"title":"(.*?)"',con)[1]
                     article.title = title
                     article.url = url
-
+                    article.article_id = re.search('group/(\d+)',url).group(1)
+                    comment_code.group_id = article.article_id
+                    comment_code.crawler_time = datetime.datetime.utcnow()
                     try:
                         comment_count = re.search('\\"comment_count\\":(\d+)',con).group(1)
                         article.comment_count = comment_count
+                        comment_code.comment_count = comment_count
                     except Exception as e:
                         print('这篇文章没有评论', title)
+                    comment_code.insert_db()
                     try:
                         title_img = re.findall('\\"url\\":\\"(http://p1.*?webp)\\"',con)
-                        article.title_img = [title_img]
+                        article.title_img = title_img
                     except Exception as e:
                         print('这篇文章没有list图片:', title)
 
