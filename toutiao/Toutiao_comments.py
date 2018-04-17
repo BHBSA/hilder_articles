@@ -38,18 +38,22 @@ class Comments_crawler():
         comment_dict_list = json.loads(res.text)
         comment_dict_list = comment_dict_list["data"]
         for comment_dict in comment_dict_list:
-            comment = Comments()
+            try:
+                comment = Comments()
 
-            comm_dict = comment_dict["comment"]
-            comment._id = comm_dict["id"]
-            comment.user_id = comm_dict["user_id"]
-            comment.user_name = comm_dict["user_name"]
-            comment.comment_text = comm_dict["text"]
-            comment.good_count = comm_dict["digg_count"]
-            comment.create_time = comm_dict["create_time"]
-            comment.article_id = id
+                comm_dict = comment_dict["comment"]
+                comment._id = comm_dict["id"]
+                comment.user_id = comm_dict["user_id"]
+                comment.user_name = comm_dict["user_name"]
+                comment.comment_text = comm_dict["text"]
+                comment.good_count = comm_dict["digg_count"]
+                comment.create_time = comm_dict["create_time"]
+                comment.article_id = id
 
-            comment.insert_db()
+                comment.insert_db()
+            except Exception as e:
+                print("评论重复",e)
+                continue
 
 if __name__ == '__main__':
     crawler = Comments_crawler()
