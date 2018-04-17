@@ -19,9 +19,9 @@ class Comments_crawler():
             try:
                 temp_coll = self.temp_coll
                 code_list = temp_coll.find().sort([('crawler_time',-1)])
-                print(code_list)
+                # print(code_list)
                 for group in code_list:
-                    if group['comment_count'] == 0:
+                    if group['comment_count'] == '0':
                         continue
                     else:
                         count = group['comment_count']
@@ -29,7 +29,7 @@ class Comments_crawler():
                         url = "http://is.snssdk.com/article/v2/tab_comments/?group_id=" + str(id)+"&count="+ str(count)
                         res = requests.get(url,headers=self.headers)
                         self.comment_info(res, id)
-                        time.sleep(300)
+                        time.sleep(180)
 
             except Exception as e:
                 print(e)
