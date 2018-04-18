@@ -5,14 +5,16 @@ from lib.mongo import Mongo
 from toutiao.comments import Comments
 setting = yaml.load(open('./config_local.yaml'))
 import time
+import random
 
 class Comments_crawler():
     def __init__(self):
         self.headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
+            "User-Agent": "Mozilla/5.0(iPhone;U;CPUiPhoneOS4_3_3likeMacOSX;en-us)AppleWebKit/533.17.9(KHTML,likeGecko)Version/5.0.2Mobile/8J2Safari/6533.18.5"
         }
         self.temp_coll = Mongo(setting['mongo']['host'], setting['mongo']['port'], setting['mongo']['db_name'],
                           setting['mongo']['url_code']).get_collection_object()
+
 
     def comment_url(self):
         while True:
@@ -27,7 +29,7 @@ class Comments_crawler():
                         count = group['comment_count']
                         id = group['group_id']
                         url = "http://is.snssdk.com/article/v2/tab_comments/?group_id=" + str(id)+"&count="+ str(count)
-                        res = requests.get(url,headers=self.headers)
+                        res = requests.get(url,headers=self.headers,)
                         self.comment_info(res, id)
                         time.sleep(180)
 
