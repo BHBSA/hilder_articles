@@ -15,21 +15,21 @@ setting = yaml.load(open('config_local.yaml'))
 html_parser = HTMLParser()
 
 headers = {
-    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119Safari/537.36",
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
     'Cache-Control': "no-cache",
     'Postman-Token': "e9b36b12-5a36-a9a3-8cb9-468a08e028a7"
 }
 
-proxies = [{"http": "http://192.168.0.96:4234"},
-           {"http": "http://192.168.0.93:4234"},
-           {"http": "http://192.168.0.90:4234"},
-           {"http": "http://192.168.0.94:4234"},
-           {"http": "http://192.168.0.98:4234"},
-           {"http": "http://192.168.0.99:4234"},
-           {"http": "http://192.168.0.100:4234"},
-           {"http": "http://192.168.0.101:4234"},
-           {"http": "http://192.168.0.102:4234"},
-           {"http": "http://192.168.0.103:4234"}, ]
+proxies = [{"https": "http://192.168.0.96:4234"},
+           {"https": "http://192.168.0.93:4234"},
+           {"https": "http://192.168.0.90:4234"},
+           {"https": "http://192.168.0.94:4234"},
+           {"https": "http://192.168.0.98:4234"},
+           {"https": "http://192.168.0.99:4234"},
+           {"https": "http://192.168.0.100:4234"},
+           {"https": "http://192.168.0.101:4234"},
+           {"https": "http://192.168.0.102:4234"},
+           {"https": "http://192.168.0.103:4234"}, ]
 
 
 class Consumer:
@@ -71,13 +71,16 @@ class Consumer:
 
         article = Article(body['source'])
         article.dict_to_attr(body)
-        print(article.dict_to_attr(body))
+        # print(article.dict_to_attr(body))
         url = article.url
 
         while True:
             try:
-                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
-                break
+                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)], timeout=10)
+                # print(res.content.decode())
+                # print(proxies[random.randint(0, 9)])
+                if '<html><head></head><body></body></html>' != res.content.decode():
+                    break
             except Exception as e:
                 print('网络请求错误', e)
 
