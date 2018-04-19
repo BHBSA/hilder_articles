@@ -8,6 +8,7 @@ import datetime
 import re
 from html.parser import HTMLParser
 import chardet
+import random
 from lxml import etree
 
 setting = yaml.load(open('config_local.yaml'))
@@ -18,6 +19,17 @@ headers = {
     'Cache-Control': "no-cache",
     'Postman-Token': "e9b36b12-5a36-a9a3-8cb9-468a08e028a7"
 }
+
+proxies = [{"http": "http://192.168.0.96:4234"},
+           {"http": "http://192.168.0.93:4234"},
+           {"http": "http://192.168.0.90:4234"},
+           {"http": "http://192.168.0.94:4234"},
+           {"http": "http://192.168.0.98:4234"},
+           {"http": "http://192.168.0.99:4234"},
+           {"http": "http://192.168.0.100:4234"},
+           {"http": "http://192.168.0.101:4234"},
+           {"http": "http://192.168.0.102:4234"},
+           {"http": "http://192.168.0.103:4234"}, ]
 
 
 class Consumer:
@@ -62,7 +74,13 @@ class Consumer:
         print(article.dict_to_attr(body))
         url = article.url
 
-        res = requests.get(url=url, headers=headers)
+        while True:
+            try:
+                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                break
+            except Exception as e:
+                print('网络请求错误', e)
+
         readable_title, readable_article = self.parse_html(res)
         article.post_time = self.get_post_time(res)
 
