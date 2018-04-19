@@ -1,21 +1,6 @@
-## 测试
-#mongo:
-#    host: 192.168.0.136
-#    port: 27017
-#    db_name : fangjia_youfang
-#    coll_comm : news_library
-#    url_code : article_id
-#    comments : comments
-#rabbitmq_host : 192.168.0.235
-#rabbitmq_port : 5673
-#redies_host : 192.168.0.235
-#redis_port : 6699
-#redis_db : 0
-#
-
-# 正式
+# 测试
 mongo:
-    host: 222.73.196.143
+    host: 192.168.0.136
     port: 27017
     db_name : fangjia_youfang
     coll_comm : news_library
@@ -26,3 +11,18 @@ rabbitmq_port : 5673
 redies_host : 192.168.0.235
 redis_port : 6699
 redis_db : 0
+
+
+## 正式
+#mongo:
+#    host: 222.73.196.143
+#    port: 27017
+#    db_name : fangjia_youfang
+#    coll_comm : news_library
+#    url_code : article_id
+#    comments : comments
+#rabbitmq_host : 192.168.0.235
+#rabbitmq_port : 5673
+#redies_host : 192.168.0.235
+#redis_port : 6699
+#redis_db : 0

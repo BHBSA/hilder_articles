@@ -40,10 +40,12 @@ class Article:
         self.city = city
         # self.crawler_time = datetime.datetime.now()  # 抓取时间
 
-        self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'], setting['mongo']['db_name'],
-                          setting['mongo']['coll_comm']).get_collection_object()
+        self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
 
     def insert_db(self):
+        db = setting['mongo']['db_name']
+        coll = setting['mongo']['coll_comm']
+        self.coll = self.coll[db][coll]
         data = serialization_info(self)
         self.coll.insert_one(data)
         print('插入一条数据', data)

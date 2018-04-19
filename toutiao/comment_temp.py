@@ -17,17 +17,21 @@ def serialization_info(info):
         data[key] = value
     return data
 
+
 class Comment_url():
-    def __init__(self,comment_count=None,group_id=None,crawler_time=None):
+    def __init__(self, comment_count=None, group_id=None, crawler_time=None):
         self.comment_count = comment_count
         self.group_id = group_id
         self.crawler_time = crawler_time
 
-        self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'], setting['mongo']['db_name'],
-                          setting['mongo']['url_code']).get_collection_object()
+        self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
+
     def insert_db(self):
+        db = setting['mongo']['db_name']
+        coll = setting['mongo']['url_code']
+        self.coll = self.coll[db][coll]
         data = serialization_info(self)
-        self.coll.create_index([("crawler_time", 1)], expireAfterSeconds= 12 * 60 * 60)
+        self.coll.create_index([("crawler_time", 1)], expireAfterSeconds=12 * 60 * 60)
         self.coll.insert_one(data)
         print('插入一条数据', data)
 

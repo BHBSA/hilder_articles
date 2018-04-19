@@ -79,7 +79,7 @@ class Toutiao():
                         comment_code.comment_count = comment_count
                     except Exception as e:
                         print('这篇文章没有评论', title)
-                    comment_code.insert_db()
+                    # comment_code.insert_db()
                     try:
                         title_img = re.findall('\\"url\\":\\"(http://p1.*?webp)\\"', con)
                         article.title_img = title_img
