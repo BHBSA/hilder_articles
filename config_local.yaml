@@ -1,9 +1,10 @@
 mongo:
-    host: 192.168.0.235
+    host: 192.168.0.136
     port: 27017
     db_name : fangjia_youfang
     coll_comm : news_library
-
+    url_code : article_id
+    comments : comments
 coll_comm : community_test
 building : building_test
 house : house_test
