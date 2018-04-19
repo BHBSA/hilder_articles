@@ -3,7 +3,7 @@ import yaml
 import json
 from lib.mongo import Mongo
 from toutiao.comments import Comments
-setting = yaml.load(open('./config_local.yaml'))
+setting = yaml.load(open('config_local.yaml'))
 import time
 import random
 
