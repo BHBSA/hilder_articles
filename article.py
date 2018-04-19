@@ -13,7 +13,7 @@ def serialization_info(info):
     """
     data = {}
     for key, value in vars(info).items():
-        if key is 'coll':
+        if key is 'connect':
             continue
         data[key] = value
     return data
@@ -40,14 +40,15 @@ class Article:
         self.city = city
         # self.crawler_time = datetime.datetime.now()  # 抓取时间
 
-        self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
+        # self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
+        self.connect = Mongo(setting['mongo']['host'], setting['mongo']['port'])
 
     def insert_db(self):
         db = setting['mongo']['db_name']
         coll = setting['mongo']['coll_comm']
-        self.coll = self.coll[db][coll]
+        coll = self.connect.connect[db][coll]
         data = serialization_info(self)
-        self.coll.insert_one(data)
+        coll.insert_one(data)
         print('插入一条数据', data)
 
     def to_dict(self):

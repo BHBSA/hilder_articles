@@ -70,7 +70,7 @@ class Consumer:
         article.body = readable_article
 
         article.crawler_time = datetime.datetime.now()
-        if '<body id=\"readabilityBody\">\n\n</body>\n' in article.body:
+        if '<body id="readabilityBody"/>' in article.body:
             print("文章为空")
         else:
             article.insert_db()
