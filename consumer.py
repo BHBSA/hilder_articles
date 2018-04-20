@@ -9,6 +9,7 @@ import re
 from html.parser import HTMLParser
 import chardet
 import random
+from  article_img.image_replace import ImageReplace
 from lxml import etree
 
 setting = yaml.load(open('config_local.yaml'))
@@ -47,6 +48,10 @@ class Consumer:
             readable_title = Document(res.content).short_title()
             readable_article_ = re.search("articleInfo.*?content.*?'(.*?)'", res.content.decode(), re.S | re.M).group(1)
             readable_article = html_parser.unescape(readable_article_)
+            source_detail = '今日头条'
+            img_change = ImageReplace()
+            readable_article = img_change.image_download(readable_article)    #对今日头条来源的文章内容进行图片连接替换
+
         else:
             # 其他来源的文章
             html_byte = re.sub(b'<script.*script>', b'', res.content, )
@@ -54,7 +59,8 @@ class Consumer:
             encode_type = encode_dict['encoding']
             readable_title = Document(html_byte.decode(encode_type)).short_title()
             readable_article = Document(html_byte.decode(encode_type)).summary()
-        return readable_title, readable_article
+            source_detail = 'other'
+        return readable_title, readable_article,source_detail
 
     @staticmethod
     def get_post_time(res):
@@ -81,12 +87,12 @@ class Consumer:
             except Exception as e:
                 print('网络请求错误', e)
 
-        readable_title, readable_article = self.parse_html(res)
+        readable_title, readable_article,source_detail = self.parse_html(res)
         article.post_time = self.get_post_time(res)
 
         # article.title = readable_title
         article.body = readable_article
-
+        article.source_detail  = source_detail
         article.crawler_time = datetime.datetime.now()
         if '<body id="readabilityBody"/>' in article.body:
             print("文章为空")

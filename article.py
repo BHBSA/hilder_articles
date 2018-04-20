@@ -22,7 +22,7 @@ def serialization_info(info):
 class Article:
     def __init__(self, source, url=None, title=None, body=None, article_id=None, post_time=None, title_img=None,
                  comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None,
-                 organization_author=None, city=None):
+                 organization_author=None, city=None,source_detail = None):
         self.source = source  # 文章来源
         self.url = url  # 链接
         self.title = title  # 标题 数组
@@ -38,6 +38,7 @@ class Article:
         self.status = 0
         self.organization_author = organization_author
         self.city = city
+        self.source_detail = source_detail
         # self.crawler_time = datetime.datetime.now()  # 抓取时间
 
         # self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
