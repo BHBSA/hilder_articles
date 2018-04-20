@@ -8,6 +8,7 @@ from article import Article
 from toutiao.comment_temp import Comment_url
 import datetime
 import time
+from article_img.qiniu_fetch import qiniufetch
 
 setting = yaml.load(open('config_local.yaml'))
 
@@ -81,8 +82,10 @@ class Toutiao():
                         print('这篇文章没有评论', title)
                     # comment_code.insert_db()
                     try:
-                        title_img = re.findall('\\"url\\":\\"(http://p1.*?webp)\\"', con)
-                        article.title_img = title_img
+                        title_img = re.search('middle_image.*?"url":"(.*?.webp)', con).group(1)
+                        new_title_img = qiniufetch(title_img,'articleimage',title_img)
+                        article.title_img = new_title_img
+
                     except Exception as e:
                         print('这篇文章没有list图片:', title)
 
