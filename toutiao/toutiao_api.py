@@ -69,7 +69,7 @@ class Toutiao():
                 continue
             else:
                 if self.bf.is_contains(url):  # 过滤详情页url
-                    print('bloom_filter已经存在!')
+                    print('bloom_filter已经存在{}'.format(url))
                     continue
                 else:
                     self.bf.insert(url)
