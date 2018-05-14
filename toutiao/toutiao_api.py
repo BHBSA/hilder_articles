@@ -8,6 +8,8 @@ from article import Article
 from toutiao.comment_temp import Comment_url
 import datetime
 import time
+import random
+from article_img.qiniu_fetch import qiniufetch
 
 setting = yaml.load(open('config_local.yaml'))
 
@@ -19,7 +21,16 @@ class Toutiao():
 
             }
         self.start_url = "http://is.snssdk.com/api/news/feed/v46/?category=news_house"
-        self.proxy = {"http": "http://192.168.0.94:4234"}
+        self.proxies = [{"http": "http://192.168.0.96:3234"},
+                        {"http": "http://192.168.0.93:3234"},
+                        {"http": "http://192.168.0.90:3234"},
+                        {"http": "http://192.168.0.94:3234"},
+                        {"http": "http://192.168.0.98:3234"},
+                        {"http": "http://192.168.0.99:3234"},
+                        {"http": "http://192.168.0.100:3234"},
+                        {"http": "http://192.168.0.101:3234"},
+                        {"http": "http://192.168.0.102:3234"},
+                        {"http": "http://192.168.0.103:3234"}, ]
         self.bf = BloomFilter(host=setting['redies_host'],
                               port=setting['redis_port'],
                               key='article_toutiao_test',
@@ -39,10 +50,15 @@ class Toutiao():
                 continue
 
     def url_list_crawler(self, channel):
-        response = requests.get(self.start_url, headers=self.headers, proxies=self.proxy)
-        url_dict = json.loads(response.text)
-        url_list = url_dict["data"]
-
+        while True:
+            proxy = self.proxies[random.randint(0,9)]
+            try:
+                response = requests.get(self.start_url, headers=self.headers, proxies=proxy)
+                url_dict = json.loads(response.text)
+                url_list = url_dict["data"]
+                break
+            except:
+                continue
         for url_content in url_list:
             con = url_content["content"]
             try:
@@ -53,7 +69,7 @@ class Toutiao():
                 continue
             else:
                 if self.bf.is_contains(url):  # 过滤详情页url
-                    print('bloom_filter已经存在!')
+                    print('bloom_filter已经存在{}'.format(url))
                     continue
                 else:
                     self.bf.insert(url)
@@ -81,8 +97,10 @@ class Toutiao():
                         print('这篇文章没有评论', title)
                     # comment_code.insert_db()
                     try:
-                        title_img = re.findall('\\"url\\":\\"(http://p1.*?webp)\\"', con)
-                        article.title_img = title_img
+                        title_img = re.search('middle_image.*?"url":"(.*?.webp)', con).group(1)
+                        new_title_img = qiniufetch(title_img,'articleimage',title_img)
+                        article.title_img = new_title_img
+
                     except Exception as e:
                         print('这篇文章没有list图片:', title)
 
