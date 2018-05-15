@@ -9,7 +9,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-def Response():
+def response():
     try:
         url = 'http://news.sh.fang.com/'
         #设置请求头
@@ -26,36 +26,28 @@ def Response():
     except Exception as e:
         print(e)
 
-
-def Html():
+def gethtml():
     try:
         #解析
-        text = Response().text
+        text = response().text
         soup = BeautifulSoup(text, 'lxml')
         return soup
     except Exception as e:
         print(e)
 
-
 #获取所以的城市链接
 def get_All_City():
     try:
-        html = Html()
-        L = []
+        html = gethtml()
         cityLinks1 = html.select('#cityi011 > a')
         cityLinks2 = html.select('#cityi012 > a')
         cityLinks3 = html.select('#cityi013 > a')
-        L = cityLinks1 + cityLinks2 + cityLinks3
-
-        list = []
-        for link in L:
+        list1 = cityLinks1 + cityLinks2 + cityLinks3
+        list2 = []
+        for link in list1:
             links = link.get('href')
-            print('')
-            list.append(links)
-        return list
-
+            list2.append(links)
+        return list2
     except Exception as e:
         print(e)
-
-
 
