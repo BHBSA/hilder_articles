@@ -61,7 +61,11 @@ class Fenghuang:
             news_res.encoding = 'utf-8'
             news_html = etree.HTML(news_res.text)
             cate_id_list = news_html.xpath("//ul[@id='newsNavScroll']/li[@cateid]")
-            self.article_url_crawler(city_name,city_id,news_url,cate_id_list,channel)
+            try:
+                self.article_url_crawler(city_name,city_id,news_url,cate_id_list,channel)
+            except Exception as e:
+                print(e)
+                return self.start_crawler()
 
     def article_url_crawler(self,city_name,city_id,news_url,cate_id_list,channel):
         post_url =  news_url + '/wap'
@@ -110,7 +114,6 @@ class Fenghuang:
                         else:
                             self.bf.insert(url)
                             print('bloom_filter不存在，插入新的url:{}'.format(url))
-
                             new_title_img = qiniufetch(title_img_url, 'articleimage', title_img_url)
                             article = Article('凤凰网')
                             article.url = url
