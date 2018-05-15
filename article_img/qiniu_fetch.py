@@ -4,6 +4,7 @@ import requests
 import random
 from qiniu import Auth, put_file, etag
 import qiniu.config
+from  proxy_connection import Proxy_contact
 # from qiniu.auth import digest
 """
     七牛云自带的图片爬取功能
@@ -37,23 +38,35 @@ proxies = [{"http":"http://192.168.0.96:4234"},
             {"http": "http://192.168.0.101:4234"},
             {"http": "http://192.168.0.102:4234"},
             {"http": "http://192.168.0.103:4234"},]
-def qiniufetch(url, bucket, filename):
+def qiniufetch(url, bucket, file_name):
 
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
-    while True:
-        try:
-            proxy = proxies[random.randint(0, 9)]
-            res = requests.get(url,headers=headers,proxies=proxy,timeout=10)       #图片连接请求
-            if res.status_code ==200:
-                break
-            else:
-                continue
-        except Exception as e:
-            print(e)
+    image_download = Proxy_contact(app_name='qiniufetch',method='get',url=url,headers=headers)
+    con = image_download.contact()
+    # while True:
+    #     try:
+    #         proxy = proxies[random.randint(0, 9)]
+    #         res = requests.get(url,headers=headers,proxies=proxy,timeout=10)       #图片连接请求
+    #         if res.status_code ==200:
+    #             break
+    #         else:
+    #             continue
+    #     except Exception as e:
+    #         print(e)
+    if 'http://' in file_name:
+        filename_1 = file_name.replace('http://','')
+        if '.webp' in filename_1:
+            filename = filename_1.replace('.webp','.jpg')
+        elif '.png' in filename_1:
+            filename = filename_1.replace('.png','.jpg')
+        else:
+            filename = file_name
+    else:
+        print('图片格式不标准')
     with open('article.jpg'.format(filename),'wb') as f:
-        f.write(res.content)
+        f.write(con)
 
     # 需要填写你的 Access Key 和 Secret Key
     access_key = 'qjku2wyeTzY-yXiQ3JuTvkT87kn4OBdrA3VnK46e'
