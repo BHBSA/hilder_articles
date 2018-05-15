@@ -9,7 +9,7 @@ import datetime
 import re
 from  article_img.image_replace import ImageReplace
 from proxy_connection import Proxy_contact
-from threading import Thread
+from multiprocessing import Process
 from gevent import monkey
 import gevent
 
@@ -33,31 +33,27 @@ proxies = [{"http": "http://192.168.0.96:3234"},
 class Consumer:
     def __init__(self):
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
-        self.con_list=[]
 
     def start_consume(self):
-
-        Thread(target=self.consume).start()
-        Thread(target=self.html_parse,args=(self.con_list)).start()
-
+        self.consume()
 
     def consume(self):
         connect = self.rabbit.get_connection()
-        connect.process_data_events()
         channel = connect.channel()
-
         channel.queue_declare(queue='fenghuang_article', durable=True)
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(self.callback,
                               queue='fenghuang_article',
                               no_ack=False)
-
-        channel.start_consuming()
+        try:
+            channel.start_consuming()
+        except Exception as e:
+            print(e)
+            return self.consume()
 
 
     def callback(self,ch, method, properties, body):
         bod = json.loads(body.decode())
-
         article = Article(bod['source'])
         article.dict_to_attr(bod)
         # print(article.dict_to_attr(body))
@@ -73,37 +69,30 @@ class Consumer:
 
         article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
         con = article_web.contact()
-        self.con_list.append((con,body))
+        self.html_parse(con,bod)
+
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
+    def html_parse(self,content,bod):
 
+        con = content.decode()
+        title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
+        post_time = re.search('<div class="marb-5"><span>(.*?)</span>',con).group(1)
+        source_detail = re.search('来源：(.*?)</span',con).group(1)
+        readable_article = re.search('<div class="article">.*?</div>',con,re.S|re.M).group(0)
 
-    def html_parse(self,con_list):
-        while True:
-            if len(con_list) == 0:
-                continue
-            else:
-                content = con_list.pop()
-                con = content.decode()
-                title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
-                post_time = re.search('<div class="marb-5"><span>(.*?)</span>',con).group(1)
-                source_detail = re.search('来源：(.*?)</span',con).group(1)
-                readable_article = re.search('<div class="article">.*?</div>',con,re.S|re.M).group(0)
+        img_change = ImageReplace()
+        readable_article = img_change.image_download(readable_article)
 
-                img_change = ImageReplace()
-                readable_article = img_change.image_download(readable_article)
+        article = Article(bod['source'])
+        article.dict_to_attr(bod)
 
-                bod = json.loads(content[1].decode())
+        article.title = title
+        article.post_time = post_time
+        article.source_detail = source_detail
+        article.body = readable_article
+        article.crawler_time = datetime.datetime.now()
 
-                article = Article(bod['source'])
-                article.dict_to_attr(bod)
-
-                article.title = title
-                article.post_time = post_time
-                article.source_detail = source_detail
-                article.body = readable_article
-                article.crawler_time = datetime.datetime.now()
-
-                article.insert_db()
-                print('一篇文张入库成功')
+        article.insert_db()
+        print('一篇文张入库成功')
 
