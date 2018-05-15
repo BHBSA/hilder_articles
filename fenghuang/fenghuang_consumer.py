@@ -69,9 +69,12 @@ class Consumer:
 
         article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
         con = article_web.contact()
-        self.html_parse(con,bod)
-
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        if con == False:
+            print('文章请求失败，跳过此文章！')
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        else:
+            self.html_parse(con,bod)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def html_parse(self,content,bod):
 

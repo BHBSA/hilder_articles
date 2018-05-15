@@ -36,11 +36,10 @@ class Fenghuang:
                               key='article_toutiao_test',
                               blockNum=1,
                               db=0, )
-        self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
 
     def start_crawler(self):
-
-        channel = self.rabbit.get_channel()
+        rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
+        channel = rabbit.get_channel()
         channel.exchange_declare('article','direct',durable=True)
         channel.queue_declare('fenghuang_article',durable=True)
         channel.queue_bind(exchange='article',
@@ -64,7 +63,7 @@ class Fenghuang:
             try:
                 self.article_url_crawler(city_name,city_id,news_url,cate_id_list,channel)
             except Exception as e:
-                print(e)
+                print('重新创建新连接',e)
                 return self.start_crawler()
 
     def article_url_crawler(self,city_name,city_id,news_url,cate_id_list,channel):
