@@ -5,6 +5,7 @@ from fangtianxia.articletwo import getarticle2
 from fangtianxia.articleone import getarticle1
 from lib.bloom_filter import BloomFilter
 from article import Article
+from article_img import qiniu_fetch
 import time
 import yaml
 
@@ -26,12 +27,16 @@ class Fangtianxia():
             # 今日头条第一个链接
             link1 = html.select('#newsid_D02_02 > a')[0].get('href')                                #今日头条第一个链接 (图片)
             link2 = html.select('#newsid_D02_02 > a > img')[0].get('src')                           #今日头条第一个图片地址
+            file_name = link2
+            link2 = qiniu_fetch(link2, file_name)
             # 抓取字段
             main1 = html.select('.news-main')[0].text.strip('[详情]').strip()                       #今日头条第一个链接   概述
             zan1 = html.select('.like')[0].text.strip('（').strip('）').strip()                     #今日头条第一个链接   点赞量
             # 今日头条第二个链接
             link5 = html.select('#newsid_D02_03 > a')[0].get('href')                                #今日头条第二条链接(图片)
             link6 = html.select('#newsid_D02_03 > a > img')[0].get('src')                           #今日头条第二个图片地址
+            file_name = link6
+            link6 = qiniu_fetch(link6, file_name)
             # 抓取字段
             main2 =html.select('.news-main')[1].text.strip('[详情]').strip()                        #今日头条第二个链接   概述
             zan2 = html.select('.like')[1].text.strip().strip('（').strip('）')                     #今日头条第二个链接   点赞量
@@ -63,6 +68,7 @@ class Fangtianxia():
                     article.post_time = list2[2]
                     article.body = list2[3]
                     article.tag = list2[4]
+                    article.author = list2[6]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -98,6 +104,7 @@ class Fangtianxia():
                     article.post_time = list4[2]
                     article.body = list4[3]
                     article.tag = list4[4]
+                    article.author = list4[6]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -117,12 +124,16 @@ class Fangtianxia():
             # 房产要闻 第一个链接
             link1 = html.select('#newsid_D02_04 > a')[0].get('href')                                #房产要闻 第一个链接 (图片)
             link2 = html.select('#newsid_D02_04 > a > img')[0].get('src')                           #房产要闻第一个图片地址
+            file_name = link2
+            link2 = qiniu_fetch(link2, file_name)
             #抓取字段
             main1 = html.select('.news-main')[2].text.strip('[详情]').strip()                       #房产要闻第一个链接   概述
             zan1 = html.select('.like')[2].text.strip('（').strip('）').strip()                     #房产要闻第一个链接   点赞量
             # 房产要闻 第二个链接
             link5 = html.select('#newsid_D02_04 > a')[1].get('href')                                #房产要闻 第二个链接 (图片)
             link6 = html.select('#newsid_D02_04 > a > img')[1].get('src')                           #房产要闻第二个图片地址
+            file_name = link6
+            link6 = qiniu_fetch(link6, file_name)
             #抓取字段
             main2 = html.select('.news-main')[3].text.strip('[详情]').strip()                       #房产要闻第一个链接   概述
             zan2 = html.select('.like')[3].text.strip('（').strip('）').strip()                     #房产要闻第一个链接   点赞量
@@ -154,6 +165,7 @@ class Fangtianxia():
                     article.post_time = list2[2]
                     article.body = list2[3]
                     article.tag = list2[4]
+                    article.author = list2[6]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -188,6 +200,7 @@ class Fangtianxia():
                     article.post_time = list4[2]
                     article.body = list4[3]
                     article.tag = list4[4]
+                    article.author = list4[6]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -212,6 +225,8 @@ class Fangtianxia():
                 link = i.select('.news-content > h3 > a')[0].get('href')
                 main = i.select('.news-content > p')[0].text.strip().strip('[详情]')
                 imglink = i.select('a > .news-img')[0].get('src')
+                file_name = imglink
+                imglink = qiniu_fetch(imglink, file_name)
                 if self.bf.is_contains(link):
                     print('bloom_filter已经存在{}'.format(link))
                     continue
@@ -237,6 +252,7 @@ class Fangtianxia():
                         article.post_time = list2[2]
                         article.body = list2[3]
                         article.tag = list2[4]
+                        article.author = list2[6]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -270,6 +286,7 @@ class Fangtianxia():
                         article.body = list4[3]
                         article.tag = list4[4]
                         article.desc = list4[5]
+                        article.author = list4[6]
                         article.url = link
                         article.category = category
                         article.insert_db()
@@ -289,6 +306,8 @@ class Fangtianxia():
                 link = i.select('div > h3 > a')[0].get('href')
                 main = i.select('div > .news-main')[0].text.strip().strip('[详情]')
                 imglink = i.select('a > .news-img')[0].get('src')
+                file_name = imglink
+                imglink = qiniu_fetch(imglink, file_name)
                 zan = i.select('.news-content > div > .like')[0].text.strip('（').strip('）')
                 if self.bf.is_contains(link):
                     print('bloom_filter已经存在{}'.format(link))
@@ -315,6 +334,7 @@ class Fangtianxia():
                         article.post_time = list2[2]
                         article.body = list2[3]
                         article.tag = list2[4]
+                        article.author = list2[6]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -349,6 +369,8 @@ class Fangtianxia():
                         imglink = i.select('.infoBox-img > a')
                         if imglink:
                             imgsrc1 = imglink[0].select('img')[0].get('src')
+                            file_name = imgsrc1
+                            imgsrc1 = qiniu_fetch(imgsrc1, file_name)
                             link1 = imglink[0].get('href')
                             if self.bf.is_contains(link1):
                                 print('bloom_filter已经存在{}'.format(link1))
@@ -374,6 +396,7 @@ class Fangtianxia():
                                     article.body = list2[3]
                                     article.tag = list2[4]
                                     article.desc = list2[5]
+                                    article.author = list2[6]
                                     article.url = link1
                                     article.title_img = imgsrc1
                                     article.insert_db()
@@ -404,12 +427,13 @@ class Fangtianxia():
                                     article.body = list4[3]
                                     article.tag = list4[4]
                                     article.desc = list4[5]
+                                    article.author = list4[6]
                                     article.url = link2
                                     article.insert_db()
                                 else:
                                     return None
                 else:
-                    return None
+                    break
         except Exception as e:
             print(e)
 def start():
