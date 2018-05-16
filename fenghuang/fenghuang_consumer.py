@@ -12,6 +12,7 @@ from proxy_connection import Proxy_contact
 from multiprocessing import Process
 from gevent import monkey
 import gevent
+import random
 
 setting = yaml.load(open('config_local.yaml'))
 
@@ -34,22 +35,25 @@ class Consumer:
     def __init__(self):
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
-    def start_consume(self):
-        self.consume()
-
-    def consume(self):
-        connect = self.rabbit.get_connection()
-        channel = connect.channel()
-        channel.queue_declare(queue='fenghuang_article', durable=True)
-        channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(self.callback,
+    def consume_connect(self):
+        connect = self.rabbit.connect_rabbit()
+        self.channel = connect.channel()
+        self.channel.queue_declare(queue='fenghuang_article', durable=True)
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume(self.callback,
                               queue='fenghuang_article',
                               no_ack=False)
-        try:
-            channel.start_consuming()
-        except Exception as e:
-            print(e)
-            return self.consume()
+
+    def start_consume(self):
+        disconnected = True
+        while disconnected:
+            try:
+                disconnected = False
+                self.channel.start_consuming()
+            except Exception as e:
+                print(e)
+                disconnected = True
+                self.consume_connect()
 
 
     def callback(self,ch, method, properties, body):
@@ -59,22 +63,27 @@ class Consumer:
         # print(article.dict_to_attr(body))
         url = article.url
 
-        # while True:
-        #     try:
-        #         res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
-        #         title, post_time, source_detail, readable_article = self.html_parse(res)
-        #         break
-        #     except Exception as e:
-        #         print('网络请求错误', e)
-
-        article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
-        con = article_web.contact()
-        if con == False:
-            print('文章请求失败，跳过此文章！')
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-        else:
-            self.html_parse(con,bod)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+        while True:
+            try:
+                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                con = res.content
+                break
+            except Exception as e:
+                print('网络请求错误', e)
+        try:
+            self.html_parse(con, bod)
+        except Exception as e:
+            print(e)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        print('消费一篇文章')
+        # article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
+        # con = article_web.contact()
+        # if con == False:
+        #     ch.basic_ack(delivery_tag=method.delivery_tag)
+        #     print('文章请求失败，跳过此文章！')
+        # else:
+        #     self.html_parse(con,bod)
+        #     ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def html_parse(self,content,bod):
 

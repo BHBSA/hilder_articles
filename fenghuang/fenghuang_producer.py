@@ -36,16 +36,17 @@ class Fenghuang:
                               key='article_toutiao_test',
                               blockNum=1,
                               db=0, )
-
-    def start_crawler(self):
-        rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
-        channel = rabbit.get_channel()
-        channel.exchange_declare('article','direct',durable=True)
-        channel.queue_declare('fenghuang_article',durable=True)
-        channel.queue_bind(exchange='article',
+        self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
+    def connect(self):
+        connection = self.rabbit.connect_rabbit()
+        self.channel = connection.channel()
+        self.channel.exchange_declare('article', 'direct', durable=True)
+        self.channel.queue_declare('fenghuang_article', durable=True)
+        self.channel.queue_bind(exchange='article',
                            queue='fenghuang_article',
                            routing_key='black')
 
+    def start_crawler(self):
         res = requests.get('http://house.ifeng.com/news',headers=self.headers)
         res.encoding = 'utf-8'
         html = etree.HTML(res.text)
@@ -60,13 +61,11 @@ class Fenghuang:
             news_res.encoding = 'utf-8'
             news_html = etree.HTML(news_res.text)
             cate_id_list = news_html.xpath("//ul[@id='newsNavScroll']/li[@cateid]")
-            try:
-                self.article_url_crawler(city_name,city_id,news_url,cate_id_list,channel)
-            except Exception as e:
-                print('重新创建新连接',e)
-                return self.start_crawler()
 
-    def article_url_crawler(self,city_name,city_id,news_url,cate_id_list,channel):
+            self.article_url_crawler(city_name,city_id,news_url,cate_id_list)
+
+
+    def article_url_crawler(self,city_name,city_id,news_url,cate_id_list):
         post_url =  news_url + '/wap'
         count = 1
         while True:
@@ -123,11 +122,19 @@ class Fenghuang:
                             article.category = cate_name
                             message = json.dumps(article.to_dict())
 
-                            channel.basic_publish(exchange='article',
-                                                  routing_key='black',
-                                                  body=message,
-                                                  properties=pika.BasicProperties(delivery_mode=2))
-                            print('已经放入队列')
+                            disconnected = True
+                            while disconnected:
+                                try:
+                                    disconnected = False
+                                    self.channel.basic_publish(exchange='article',
+                                                          routing_key='black',
+                                                          body=message,
+                                                          properties=pika.BasicProperties(delivery_mode=2))
+                                    print('已经放入队列')
+                                except Exception as e:
+                                    print(e)
+                                    self.connect()
+                                    disconnected = True
 
             count += 1
 
