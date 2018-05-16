@@ -7,7 +7,6 @@ def getarticle1(url):
         response = requests.get(url)
         response.encoding = 'GBK'
         soup = BeautifulSoup(response.text, 'lxml')
-
         title = soup.select('.news-detail-content > .news-title')[0].text.strip()          #标题
         source = soup.select('.assis-title')[0].text.strip()[0:5]                          #来源
         time = soup.select('.assis-title')[0].text.strip()[5:]                             #时间
