@@ -1,11 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
 from article_img.image_replace import ImageReplace
-
+import random
 #第一种文章
 def getarticle1(url):
     try:
-        response = requests.get(url)
+        proxies = [{"http": "http://192.168.0.96:3234"},
+                   {"http": "http://192.168.0.93:3234"},
+                   {"http": "http://192.168.0.90:3234"},
+                   {"http": "http://192.168.0.94:3234"},
+                   {"http": "http://192.168.0.98:3234"},
+                   {"http": "http://192.168.0.99:3234"},
+                   {"http": "http://192.168.0.100:3234"},
+                   {"http": "http://192.168.0.101:3234"},
+                   {"http": "http://192.168.0.102:3234"},
+                   {"http": "http://192.168.0.103:3234"}, ]
+        response = requests.get(url=url, proxies=proxies[random.randint(0, 9)])
         response.encoding = 'GBK'
         soup = BeautifulSoup(response.text, 'lxml')
         title = soup.select('.news-detail-content > .news-title')[0].text.strip()          #标题
