@@ -29,16 +29,17 @@ class Proxy_contact():
                             #     self.post_back(proxy_ip, 1)
                             self.post_back(proxy_ip, 0)
                             break
-                        elif count == 50:
-                            # log.error('重连失败！')
-                            print("重连失败")
-                            return False
                         else:
+                            count += 1
                             continue
                     except:
                         self.post_back(proxy_ip, 1)
                         count += 1
                         # log.debug("尝试第{}次重新连接".format(count))
+                        if count >= 10:
+                            # log.error('重连失败！')
+                            print("重连失败")
+                            return False
                         print("尝试第{}次重新连接".format(count))
                         continue
 
