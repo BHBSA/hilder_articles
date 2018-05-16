@@ -112,7 +112,7 @@ class Fenghuang:
                         else:
                             self.bf.insert(url)
                             print('bloom_filter不存在，插入新的url:{}'.format(url))
-                            new_title_img = qiniufetch(title_img_url, 'articleimage', title_img_url)
+                            new_title_img = qiniufetch(title_img_url, title_img_url)
                             article = Article('凤凰网')
                             article.url = url
                             article.desc = desc
