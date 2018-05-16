@@ -45,6 +45,8 @@ def qiniufetch(url, bucket, file_name):
     }
     image_download = Proxy_contact(app_name='qiniufetch',method='get',url=url,headers=headers)
     con = image_download.contact()
+    if con  == False:
+        return None
     # while True:
     #     try:
     #         proxy = proxies[random.randint(0, 9)]
