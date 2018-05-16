@@ -33,9 +33,9 @@ class ImageReplace():
         file_name = matchobj.group(1)
 
         image_new_url = qiniufetch(file_name, file_name)
-        rep = 'img src="' + image_new_url + '"'
+        rep = 'src="' + image_new_url + '"'
         if image_new_url == None:
-            rep = 'img src="' + file_name + '"'
+            rep = 'src="' + file_name + '"'
         return rep
 
 

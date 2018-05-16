@@ -44,10 +44,10 @@ def qiniufetch(url,file_name):
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
-    image_download = Proxy_contact(app_name='qiniufetch',method='get',url=url,headers=headers)
-    con = image_download.contact()
-    if con  == False:
-        return None
+    # image_download = Proxy_contact(app_name='qiniufetch',method='get',url=url,headers=headers)
+    # con = image_download.contact()
+    # if con  == False:
+    #     return None
     # while True:
     #     try:
     #         proxy = proxies[random.randint(0, 9)]
@@ -59,6 +59,10 @@ def qiniufetch(url,file_name):
     #     except Exception as e:
     #         print(e)
     if 'http://' in file_name:
+        image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
+        con = image_download.contact()
+        if con == False:
+            return None
         filename_1 = file_name.replace('http://','')
         if '.webp' in filename_1:
             filename = filename_1.replace('.webp','.jpg')
@@ -66,10 +70,12 @@ def qiniufetch(url,file_name):
             filename = filename_1.replace('.png','.jpg')
         else:
             filename = file_name
+        with open('article.jpg'.format(filename), 'wb') as f:
+            f.write(con)
     else:
         print('图片格式不标准')
-    with open('article.jpg'.format(filename),'wb') as f:
-        f.write(con)
+        file_url = url
+        return file_url
 
     # 需要填写你的 Access Key 和 Secret Key
     access_key = 'qjku2wyeTzY-yXiQ3JuTvkT87kn4OBdrA3VnK46e'
