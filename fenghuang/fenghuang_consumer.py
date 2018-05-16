@@ -36,7 +36,7 @@ class Consumer:
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
     def consume_connect(self):
-        connect = self.rabbit.connect_rabbit()
+        connect = self.rabbit.get_connection()
         self.channel = connect.channel()
         self.channel.queue_declare(queue='fenghuang_article', durable=True)
         self.channel.basic_qos(prefetch_count=1)

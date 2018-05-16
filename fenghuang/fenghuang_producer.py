@@ -38,7 +38,7 @@ class Fenghuang:
                               db=0, )
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
     def connect(self):
-        connection = self.rabbit.connect_rabbit()
+        connection = self.rabbit.get_connection()
         self.channel = connection.channel()
         self.channel.exchange_declare('article', 'direct', durable=True)
         self.channel.queue_declare('fenghuang_article', durable=True)
