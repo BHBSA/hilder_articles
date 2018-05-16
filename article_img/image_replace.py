@@ -6,7 +6,7 @@ import yaml
 setting = yaml.load(open('config_local.yaml'))
 mongo = Mongo(setting['mongo']['host'])
 coll = mongo.connect[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
-bucket = 'articleimage'
+
 class ImageReplace():
     def __init__(self,):
         self.coll = coll
@@ -32,7 +32,7 @@ class ImageReplace():
         # image_key = image_url_list.index(article_img)
         file_name = matchobj.group(1)
 
-        image_new_url = qiniufetch(file_name, bucket, file_name)
+        image_new_url = qiniufetch(file_name, file_name)
         rep = 'img src="' + image_new_url + '"'
         if image_new_url == None:
             rep = 'img src="' + file_name + '"'

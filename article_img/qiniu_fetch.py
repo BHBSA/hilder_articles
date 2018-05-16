@@ -38,7 +38,8 @@ proxies = [{"http":"http://192.168.0.96:4234"},
             {"http": "http://192.168.0.101:4234"},
             {"http": "http://192.168.0.102:4234"},
             {"http": "http://192.168.0.103:4234"},]
-def qiniufetch(url, bucket, file_name):
+bucket = 'articleimage'
+def qiniufetch(url,file_name):
 
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
