@@ -455,7 +455,7 @@ class Fangtianxia(object):
                     break
         except Exception as e:
             print(e)
-def start():
+def fangtianxia_start():
     list1 = get_All_City()
     fangtianxia = Fangtianxia()
     for url in list1:
