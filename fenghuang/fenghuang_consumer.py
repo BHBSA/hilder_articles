@@ -1,5 +1,4 @@
 import yaml
-from lib.rabbitmq import Rabbit
 import requests
 from article import Article
 import json
@@ -10,6 +9,7 @@ from  article_img.image_replace import ImageReplace
 from proxy_connection import Proxy_contact
 import random
 import time
+import pika
 
 setting = yaml.load(open('config_local.yaml'))
 
@@ -29,11 +29,10 @@ proxies = [{"http": "http://192.168.0.96:3234"},
            {"http": "http://192.168.0.103:3234"}, ]
 
 class Consumer:
-    def __init__(self):
-        self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
     def consume_connect(self):
-        connect = self.rabbit.get_connection()
+        connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
+                                                                    port=setting['rabbitmq_port']))
         self.channel = connect.channel()
         self.channel.queue_declare(queue='fenghuang_article', durable=True)
         self.channel.basic_qos(prefetch_count=1)

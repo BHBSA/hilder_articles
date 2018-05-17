@@ -1,5 +1,5 @@
 import yaml
-from lib.rabbitmq import Rabbit
+import pika
 import requests
 from readability.readability import Document
 from article import Article
@@ -32,10 +32,10 @@ proxies = [{"http": "http://192.168.0.96:3234"},
            {"http": "http://192.168.0.103:3234"}, ]
 
 class WangyiConsumer:
-    def __init__(self):
-        self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
+
     def consume_connect(self):
-        connect = self.rabbit.get_connection()
+        connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
+                                                                    port=setting['rabbitmq_port']))
         self.channel = connect.channel()
         self.channel.queue_declare(queue='wangyi_article', durable=True)
         self.channel.basic_qos(prefetch_count=1)
