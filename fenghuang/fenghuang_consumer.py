@@ -1,7 +1,6 @@
 import yaml
 from lib.rabbitmq import Rabbit
 import requests
-from readability.readability import Document
 from article import Article
 import json
 from lxml import etree
@@ -9,10 +8,8 @@ import datetime
 import re
 from  article_img.image_replace import ImageReplace
 from proxy_connection import Proxy_contact
-from multiprocessing import Process
-from gevent import monkey
-import gevent
 import random
+import time
 
 setting = yaml.load(open('config_local.yaml'))
 
