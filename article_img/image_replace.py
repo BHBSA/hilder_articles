@@ -4,8 +4,8 @@ import re
 import yaml
 
 setting = yaml.load(open('config_local.yaml'))
-mongo = Mongo(setting['mongo']['host'])
-coll = mongo.connect[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
+mongo = Mongo(setting['mongo']['host'],setting['mongo']['port'],setting['mongo']['db_name'],setting['mongo']['coll_comm'])
+coll = mongo.get_collection_object()
 
 class ImageReplace():
     def __init__(self,):
