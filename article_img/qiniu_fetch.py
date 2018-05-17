@@ -28,41 +28,38 @@ from  proxy_connection import Proxy_contact
 """
     图片爬取
 """
-proxies = [{"http":"http://192.168.0.96:4234"},
-            {"http":"http://192.168.0.93:4234"},
-            {"http":"http://192.168.0.90:4234"},
-            {"http":"http://192.168.0.94:4234"},
-            {"http": "http://192.168.0.98:4234"},
-            {"http": "http://192.168.0.99:4234"},
-            {"http": "http://192.168.0.100:4234"},
-            {"http": "http://192.168.0.101:4234"},
-            {"http": "http://192.168.0.102:4234"},
-            {"http": "http://192.168.0.103:4234"},]
+proxies = [{"http": "http://192.168.0.96:3234"},
+                        {"http": "http://192.168.0.93:3234"},
+                        {"http": "http://192.168.0.90:3234"},
+                        {"http": "http://192.168.0.94:3234"},
+                        {"http": "http://192.168.0.98:3234"},
+                        {"http": "http://192.168.0.99:3234"},
+                        {"http": "http://192.168.0.100:3234"},
+                        {"http": "http://192.168.0.101:3234"},
+                        {"http": "http://192.168.0.102:3234"},
+                        {"http": "http://192.168.0.103:3234"}, ]
 bucket = 'articleimage'
 def qiniufetch(url,file_name):
 
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
-    # image_download = Proxy_contact(app_name='qiniufetch',method='get',url=url,headers=headers)
-    # con = image_download.contact()
-    # if con  == False:
-    #     return None
-    # while True:
-    #     try:
-    #         proxy = proxies[random.randint(0, 9)]
-    #         res = requests.get(url,headers=headers,proxies=proxy,timeout=10)       #图片连接请求
-    #         if res.status_code ==200:
-    #             break
-    #         else:
-    #             continue
-    #     except Exception as e:
-    #         print(e)
     if 'http://' in file_name:
-        image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
-        con = image_download.contact()
-        if con == False:
-            return None
+        # image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
+        # con = image_download.contact()
+        while True:
+            try:
+                proxy = proxies[random.randint(0, 9)]
+                res = requests.get(url, headers=headers, proxies=proxy, timeout=10)  # 图片连接请求
+                con = res.content
+                if res.status_code == 200:
+                    break
+                else:
+                    continue
+            except Exception as e:
+                print(e)
+        # if con == False:
+        #     return None
         filename_1 = file_name.replace('http://','')
         if '.webp' in filename_1:
             filename = filename_1.replace('.webp','.jpg')

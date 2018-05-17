@@ -36,9 +36,10 @@ class Fenghuang:
                               key='article_toutiao_test',
                               blockNum=1,
                               db=0, )
-        self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
+        # self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'])
     def connect(self):
-        connection = self.rabbit.get_connection()
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
+                                                                    port=setting['rabbitmq_port']))
         self.channel = connection.channel()
         self.channel.exchange_declare('article', 'direct', durable=True)
         self.channel.queue_declare('fenghuang_article', durable=True)

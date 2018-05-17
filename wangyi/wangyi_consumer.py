@@ -84,8 +84,8 @@ class WangyiConsumer:
             author = re.search('作者：(.*?)</',con).group(1)
         except:
             author = None
-        news_html = html.xpath("//div[@class='post_text']")
-        readable_article = etree.tostring(news_html)
+        news_html = html.xpath("//div[@class='post_text']")[0]
+        readable_article = etree.tounicode(news_html)
 
         img_change = ImageReplace()
         readable_article = img_change.image_download(readable_article)
