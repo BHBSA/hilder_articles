@@ -56,6 +56,7 @@ class Fangtianxia(object):
                     article.post_time = list1[2]
                     article.body = list1[3]
                     article.tag = list1[4]
+                    article.city = list1[5]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -71,6 +72,7 @@ class Fangtianxia(object):
                     article.body = list2[3]
                     article.tag = list2[4]
                     article.author = list2[6]
+                    article.city = list2[7]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -94,6 +96,7 @@ class Fangtianxia(object):
                     article.post_time = list3[2]
                     article.body = list3[3]
                     article.tag = list3[4]
+                    article.city = list3[5]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -109,6 +112,7 @@ class Fangtianxia(object):
                     article.body = list4[3]
                     article.tag = list4[4]
                     article.author = list4[6]
+                    article.city = list4[7]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -157,6 +161,7 @@ class Fangtianxia(object):
                     article.post_time = list1[2]
                     article.body = list1[3]
                     article.tag = list1[4]
+                    article.city = list1[5]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -172,6 +177,7 @@ class Fangtianxia(object):
                     article.body = list2[3]
                     article.tag = list2[4]
                     article.author = list2[6]
+                    article.city = list2[7]
                     article.title_img = link2
                     article.desc = main1
                     article.like_count = zan1
@@ -194,6 +200,7 @@ class Fangtianxia(object):
                     article.post_time = list3[2]
                     article.body = list3[3]
                     article.tag = list3[4]
+                    article.city = list3[5]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -209,6 +216,7 @@ class Fangtianxia(object):
                     article.body = list4[3]
                     article.tag = list4[4]
                     article.author = list4[6]
+                    article.city = list4[7]
                     article.title_img = link6
                     article.desc = main2
                     article.like_count = zan2
@@ -249,6 +257,7 @@ class Fangtianxia(object):
                         article.post_time = list1[2]
                         article.body = list1[3]
                         article.tag = list1[4]
+                        article.city = list1[5]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -263,6 +272,7 @@ class Fangtianxia(object):
                         article.body = list2[3]
                         article.tag = list2[4]
                         article.author = list2[6]
+                        article.city = list2[7]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -286,6 +296,7 @@ class Fangtianxia(object):
                         article.post_time = list3[2]
                         article.body = list3[3]
                         article.tag = list3[4]
+                        article.city = list3[5]
                         article.url = link
                         article.category = category
                         article.crawler_time = datetime.datetime.now()
@@ -299,6 +310,7 @@ class Fangtianxia(object):
                         article.tag = list4[4]
                         article.desc = list4[5]
                         article.author = list4[6]
+                        article.city = list4[7]
                         article.url = link
                         article.category = category
                         article.crawler_time = datetime.datetime.now()
@@ -335,6 +347,7 @@ class Fangtianxia(object):
                         article.post_time = list1[2]
                         article.body = list1[3]
                         article.tag = list1[4]
+                        article.city = list1[5]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -349,6 +362,7 @@ class Fangtianxia(object):
                         article.body = list2[3]
                         article.tag = list2[4]
                         article.author = list2[6]
+                        article.city = list2[7]
                         article.desc = main
                         article.url = link
                         article.title_img = imglink
@@ -400,6 +414,7 @@ class Fangtianxia(object):
                                     article.post_time = list1[2]
                                     article.body = list1[3]
                                     article.tag = list1[4]
+                                    article.city = list1[5]
                                     article.url = link1
                                     article.title_img = imgsrc1
                                     article.crawler_time = datetime.datetime.now()
@@ -413,6 +428,7 @@ class Fangtianxia(object):
                                     article.tag = list2[4]
                                     article.desc = list2[5]
                                     article.author = list2[6]
+                                    article.city = list2[7]
                                     article.url = link1
                                     article.title_img = imgsrc1
                                     article.crawler_time = datetime.datetime.now()
@@ -434,6 +450,7 @@ class Fangtianxia(object):
                                     article.post_time = list3[2]
                                     article.body = list3[3]
                                     article.tag = list3[4]
+                                    article.city = list3[5]
                                     article.url = link2
                                     article.crawler_time = datetime.datetime.now()
                                     article.insert_db()
@@ -446,6 +463,7 @@ class Fangtianxia(object):
                                     article.tag = list4[4]
                                     article.desc = list4[5]
                                     article.author = list4[6]
+                                    article.city = list4[7]
                                     article.url = link2
                                     article.crawler_time = datetime.datetime.now()
                                     article.insert_db()

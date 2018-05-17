@@ -28,11 +28,12 @@ def getarticle2(url):
         img_replace = ImageReplace()
         con = img_replace.image_download(content)                                       #内容
         tags = soup.select('#xfopen_B01_11')
+        city = soup.select('.s4Box > a')[0].text
         L = []                                                                          #L为所有的标签
         for i in tags:
             tagList = i.text
             L.append(tagList)
-        data = [title, source, time, con, L]
+        data = [title, source, time, con, L, city]
         return data
     except Exception as e:
         print(e)

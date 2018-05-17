@@ -18,6 +18,7 @@ def getarticle1(url):
         response = requests.get(url=url, proxies=proxies[random.randint(0, 9)])
         response.encoding = 'GBK'
         soup = BeautifulSoup(response.text, 'lxml')
+
         title = soup.select('.news-detail-content > .news-title')[0].text.strip()          #标题
         allsource = soup.select('.assis-title')[0].text.strip().split('\n')
         source1 = allsource[0].strip('\r').split('\xa0')
@@ -30,11 +31,12 @@ def getarticle1(url):
         con = img_replace.image_download(content)                                         #内容
         tags = soup.find_all('span', 'lab-span')
         summery = soup.select('.news-summery')[0].text.strip('[摘要]').strip()             #概述
+        city = soup.select('.s4Box > a')[0].text                                           #城市
         L = []                                                                             #L为所有的标签
         for i in tags:
             tagList = i.text
             L.append(tagList)
-        data = [title, source, time, con, L, summery, author]
+        data = [title, source, time, con, L, summery, author, city]
         return data
     except Exception as e:
         print(e)
