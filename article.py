@@ -5,6 +5,7 @@ import yaml
 setting = yaml.load(open('config_local.yaml'))
 
 
+
 def serialization_info(info):
     """
 
@@ -45,12 +46,12 @@ class Article:
         # self.crawler_time = datetime.datetime.now()  # 抓取时间
 
         # self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
-        self.mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'],
-                             db_name=setting['mongo']['db_name'],
-                             collection_name=setting['mongo']['coll_comm'])
 
     def insert_db(self):
-        coll = self.mongo.get_collection_object()
+        mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'],
+                           db_name=setting['mongo']['db_name'],
+                           collection_name=setting['mongo']['coll_comm'])
+        coll = mongo.get_collection_object()
         data = serialization_info(self)
         coll.insert_one(data)
         print('插入一条数据', data)

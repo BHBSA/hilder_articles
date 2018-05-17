@@ -1,6 +1,6 @@
 import requests
 import random
-from lib.log import LogHandler
+# from lib.log import LogHandler
 import json
 
 # log = LogHandler('proxy')
