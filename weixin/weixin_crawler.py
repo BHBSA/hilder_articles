@@ -43,7 +43,10 @@ def weixin_start():
         sougou_html = etree.HTML(sougou_res.text)
         weixin_url = sougou_html.xpath("//p[@class='tit']/a/@href")[0]
         res = requests.get(weixin_url,headers=headers,)
-        msg = re.search('var msgList = (.*?)seajs.use',res.text,re.S|re.M).group(1)
+        try:
+            msg = re.search('var msgList = (.*?)seajs.use',res.text,re.S|re.M).group(1)
+        except:
+            continue
         content_urllist = re.findall('content_url":"(.*?)"',msg)
         for content_url in content_urllist:
             article_url = content_url.replace('amp;','')
