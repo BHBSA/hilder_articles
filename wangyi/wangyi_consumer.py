@@ -72,6 +72,7 @@ class WangyiConsumer:
             article_ready = self.html_parse(con, bod)
         except Exception as e:
             print(e)
+            return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
         print('消费一篇文章')
