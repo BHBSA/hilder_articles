@@ -9,7 +9,7 @@ from article_img.qiniu_fetch import qiniufetch
 import time
 import yaml
 import datetime
-
+import random
 setting = yaml.load(open('config_local.yaml'))
 article = Article('房天下')
 class Fangtianxia(object):
@@ -237,7 +237,35 @@ class Fangtianxia(object):
     #本地热点
     def localhot(self, url):
         try:
-            response = requests.get(url)
+            proxies = [{"http": "http://192.168.0.96:3234"},
+                       {"http": "http://192.168.0.93:3234"},
+                       {"http": "http://192.168.0.90:3234"},
+                       {"http": "http://192.168.0.94:3234"},
+                       {"http": "http://192.168.0.98:3234"},
+                       {"http": "http://192.168.0.99:3234"},
+                       {"http": "http://192.168.0.100:3234"},
+                       {"http": "http://192.168.0.101:3234"},
+                       {"http": "http://192.168.0.102:3234"},
+                       {"http": "http://192.168.0.103:3234"}]
+            headers ={
+                    'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8',
+                    'Accept - Encoding': 'gzip, deflate',
+                    'Accept - Language': 'zh - CN, zh;q = 0.9',
+                    'Cache - Control': 'max - age = 0',
+                    'Connection': 'keep - alive',
+                    'Host': 'news.sh.fang.com',
+                    'Referer': 'http: // sh.fang.com /?s = BDPZ - BL',
+                    'Upgrade - Insecure - Requests': '1',
+                    'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;WOW64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 65.0.3325.146Safari / 537.36'
+                    }
+
+            while True:
+                try:
+                    response = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                    break
+                except Exception as e:
+                    print(e)
+
             response.encoding = 'GBK'
             html = BeautifulSoup(response.text, 'lxml')
             piece = html.select('.left-part > dl')[2]
@@ -329,7 +357,34 @@ class Fangtianxia(object):
     #未分类新闻
     def UnfiledNews(self, url):
         try:
-            response = requests.get(url)
+            proxies = [{"http": "http://192.168.0.96:3234"},
+                       {"http": "http://192.168.0.93:3234"},
+                       {"http": "http://192.168.0.90:3234"},
+                       {"http": "http://192.168.0.94:3234"},
+                       {"http": "http://192.168.0.98:3234"},
+                       {"http": "http://192.168.0.99:3234"},
+                       {"http": "http://192.168.0.100:3234"},
+                       {"http": "http://192.168.0.101:3234"},
+                       {"http": "http://192.168.0.102:3234"},
+                       {"http": "http://192.168.0.103:3234"}]
+            headers = {
+                'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8',
+                'Accept - Encoding': 'gzip, deflate',
+                'Accept - Language': 'zh - CN, zh;q = 0.9',
+                'Cache - Control': 'max - age = 0',
+                'Connection': 'keep - alive',
+                'Host': 'news.sh.fang.com',
+                'Referer': 'http: // sh.fang.com /?s = BDPZ - BL',
+                'Upgrade - Insecure - Requests': '1',
+                'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;WOW64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 65.0.3325.146Safari / 537.36'
+                }
+
+            while True:
+                try:
+                    response = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                    break
+                except Exception as e:
+                    print(e)
             response.encoding = 'GBK'
             html = BeautifulSoup(response.text, 'lxml')
             piece = html.select('.left-part > dl')[3]
@@ -386,99 +441,122 @@ class Fangtianxia(object):
         try:
             page = 0
             while page >= 0:
-                page = page + 1
-                time1 = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-                url1 = url.replace('.com/', '.com/gdxw') + '/' + time1 + '/' + str(page) + '.html'
-                if url1:
-                    headers = {
-                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                            'Accept-Encoding': 'gzip, deflate',
-                            'Accept-Language': 'zh-CN,zh;q=0.9',
-                            'Cache-Control': 'max-age=0',
-                            'Connection': 'keep-alive'
-                            }
-                    response = requests.get(url=url1, headers=headers)
-                    response.encoding = 'GBK'
-                    soup = BeautifulSoup(response.text,'lxml')
-                    piece = soup.select('.infoBox-list')[0]
-                    eachpiece = piece.select('.infoBox-item')
-                    for i in eachpiece:
-                        imglink = i.select('.infoBox-img > a')
-                        if imglink:
-                            imgsrc1 = imglink[0].select('img')[0].get('src')
+                try:
+                    page = page + 1
+                    time1 = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+                    url1 = url.replace('.com/', '.com/gdxw') + '/' + time1 + '/' + str(page) + '.html'
+                    if url1:
+                        headers = {
+                                'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8',
+                                'Accept - Encoding': 'gzip, deflate',
+                                'Accept - Language': 'zh - CN, zh;q = 0.9',
+                                'Cache - Control': 'max - age = 0',
+                                'Connection': 'keep - alive',
+                                'Host': 'news.sh.fang.com',
+                                'Referer': 'http: // sh.fang.com /?s = BDPZ - BL',
+                                'Upgrade - Insecure - Requests': '1',
+                                'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;WOW64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 65.0.3325.146Safari / 537.36'
+                                }
+                        proxies = [{"http": "http://192.168.0.96:3234"},
+                                   {"http": "http://192.168.0.93:3234"},
+                                   {"http": "http://192.168.0.90:3234"},
+                                   {"http": "http://192.168.0.94:3234"},
+                                   {"http": "http://192.168.0.98:3234"},
+                                   {"http": "http://192.168.0.99:3234"},
+                                   {"http": "http://192.168.0.100:3234"},
+                                   {"http": "http://192.168.0.101:3234"},
+                                   {"http": "http://192.168.0.102:3234"},
+                                   {"http": "http://192.168.0.103:3234"}, ]
+                        while True:
+                            try:
+                                response = requests.get(url=url1, headers=headers, proxies=proxies[random.randint(0, 9)])
+                                break
+                            except Exception as e:
+                                print(e)
 
-                            link1 = imglink[0].get('href')
-                            if self.bf.is_contains(link1):
-                                print('bloom_filter已经存在{}'.format(link1))
-                                continue
-                            else:
-                                self.bf.insert(link1)
-                                print('bloom_filter不存在，插入新的url:{}'.format(link1))
-                                file_name = imgsrc1
-                                imgsrc1 = qiniufetch(imgsrc1, file_name)
-                                if 'open' in link1:
-                                    list1 = getarticle2(link1)
-                                    article.title = list1[0]
-                                    article.source_detail = list1[1]
-                                    article.post_time = list1[2]
-                                    article.body = list1[3]
-                                    article.tag = list1[4]
-                                    article.city = list1[5]
-                                    article.url = link1
-                                    article.title_img = imgsrc1
-                                    article.crawler_time = datetime.datetime.now()
-                                    article.insert_db()
-                                elif 'open' not in link1:
-                                    list2 = getarticle1(link1)
-                                    article.title = list2[0]
-                                    article.source_detail = list2[1]
-                                    article.post_time = list2[2]
-                                    article.body = list2[3]
-                                    article.tag = list2[4]
-                                    article.desc = list2[5]
-                                    article.author = list2[6]
-                                    article.city = list2[7]
-                                    article.url = link1
-                                    article.title_img = imgsrc1
-                                    article.crawler_time = datetime.datetime.now()
-                                    article.insert_db()
+                        response.encoding = 'GBK'
+                        soup = BeautifulSoup(response.text,'lxml')
+                        piece = soup.select('.infoBox-list')[0]
+                        eachpiece = piece.select('.infoBox-item')
+                        for i in eachpiece:
+                            imglink = i.select('.infoBox-img > a')
+                            if imglink:
+                                imgsrc1 = imglink[0].select('img')[0].get('src')
+
+                                link1 = imglink[0].get('href')
+                                if self.bf.is_contains(link1):
+                                    print('bloom_filter已经存在{}'.format(link1))
+                                    continue
                                 else:
-                                    return None
-                        else:
-                            link2 = i.select('h3 > a')[0].get('href')
-                            if self.bf.is_contains(link2):
-                                print('bloom_filter已经存在{}'.format(link2))
-                                continue
+                                    self.bf.insert(link1)
+                                    print('bloom_filter不存在，插入新的url:{}'.format(link1))
+                                    file_name = imgsrc1
+                                    imgsrc1 = qiniufetch(imgsrc1, file_name)
+                                    if 'open' in link1:
+                                        list1 = getarticle2(link1)
+                                        article.title = list1[0]
+                                        article.source_detail = list1[1]
+                                        article.post_time = list1[2]
+                                        article.body = list1[3]
+                                        article.tag = list1[4]
+                                        article.city = list1[5]
+                                        article.url = link1
+                                        article.title_img = imgsrc1
+                                        article.crawler_time = datetime.datetime.now()
+                                        article.insert_db()
+                                    elif 'open' not in link1:
+                                        list2 = getarticle1(link1)
+                                        article.title = list2[0]
+                                        article.source_detail = list2[1]
+                                        article.post_time = list2[2]
+                                        article.body = list2[3]
+                                        article.tag = list2[4]
+                                        article.desc = list2[5]
+                                        article.author = list2[6]
+                                        article.city = list2[7]
+                                        article.url = link1
+                                        article.title_img = imgsrc1
+                                        article.crawler_time = datetime.datetime.now()
+                                        article.insert_db()
+                                    else:
+                                        return None
                             else:
-                                self.bf.insert(link2)
-                                print('bloom_filter不存在，插入新的url:{}'.format(link2))
-                                if 'open' in link2:
-                                    list3 = getarticle2(link2)
-                                    article.title = list3[0]
-                                    article.source_detail = list3[1]
-                                    article.post_time = list3[2]
-                                    article.body = list3[3]
-                                    article.tag = list3[4]
-                                    article.city = list3[5]
-                                    article.url = link2
-                                    article.crawler_time = datetime.datetime.now()
-                                    article.insert_db()
-                                elif 'open' not in link2:
-                                    list4 = getarticle1(link2)
-                                    article.title = list4[0]
-                                    article.source_detail = list4[1]
-                                    article.post_time = list4[2]
-                                    article.body = list4[3]
-                                    article.tag = list4[4]
-                                    article.desc = list4[5]
-                                    article.author = list4[6]
-                                    article.city = list4[7]
-                                    article.url = link2
-                                    article.crawler_time = datetime.datetime.now()
-                                    article.insert_db()
+                                link2 = i.select('h3 > a')[0].get('href')
+                                if self.bf.is_contains(link2):
+                                    print('bloom_filter已经存在{}'.format(link2))
+                                    continue
                                 else:
-                                    return None
-                else:
+                                    self.bf.insert(link2)
+                                    print('bloom_filter不存在，插入新的url:{}'.format(link2))
+                                    if 'open' in link2:
+                                        list3 = getarticle2(link2)
+                                        article.title = list3[0]
+                                        article.source_detail = list3[1]
+                                        article.post_time = list3[2]
+                                        article.body = list3[3]
+                                        article.tag = list3[4]
+                                        article.city = list3[5]
+                                        article.url = link2
+                                        article.crawler_time = datetime.datetime.now()
+                                        article.insert_db()
+                                    elif 'open' not in link2:
+                                        list4 = getarticle1(link2)
+                                        article.title = list4[0]
+                                        article.source_detail = list4[1]
+                                        article.post_time = list4[2]
+                                        article.body = list4[3]
+                                        article.tag = list4[4]
+                                        article.desc = list4[5]
+                                        article.author = list4[6]
+                                        article.city = list4[7]
+                                        article.url = link2
+                                        article.crawler_time = datetime.datetime.now()
+                                        article.insert_db()
+                                    else:
+                                        return None
+
+                except Exception as e:
+                    print(e)
                     break
         except Exception as e:
             print(e)

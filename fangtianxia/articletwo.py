@@ -15,10 +15,21 @@ def getarticle2(url):
                    {"http": "http://192.168.0.100:3234"},
                    {"http": "http://192.168.0.101:3234"},
                    {"http": "http://192.168.0.102:3234"},
-                   {"http": "http://192.168.0.103:3234"}, ]
+                   {"http": "http://192.168.0.103:3234"}]
+        headers ={
+                'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8',
+                'Accept - Encoding': 'gzip, deflate',
+                'Accept - Language': 'zh - CN, zh;q = 0.9',
+                'Cache - Control': 'max - age = 0',
+                'Connection': 'keep - alive',
+                'Host': 'news.sh.fang.com',
+                'Referer': 'http: // news.sh.fang.com /',
+                'Upgrade - Insecure - Requests': '1',
+                'User - Agent': 'Mozilla / 5.0(WindowsNT10.0;WOW64) AppleWebKit / 537.36(KHTML, likeGecko) Chrome / 65.0.3325.146Safari / 537.36'
+                }
         while True:
             try:
-                response = requests.get(url=url, proxies=proxies[random.randint(0, 9)])
+                response = requests.get(url=url, headers=headers,proxies=proxies[random.randint(0, 9)])
                 break
             except Exception as e:
                 print(e)
