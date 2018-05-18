@@ -70,7 +70,6 @@ class Meijing(object):
                         response = requests.get(url=link, headers=headers, proxies=proxies[random.randint(0, 9)])
                         soup1 = BeautifulSoup(response.text, 'lxml')
 
-
                         title = soup1.select('.g-article-top > h1')[0].text.strip()
                         source = soup1.select('.source')[0].text.strip()
                         time = soup1.select('.time')[0].text.strip()
@@ -108,6 +107,7 @@ class Meijing(object):
 
             more = soup.select('#more')[0].get('href')
             return more
+            print(more)
         except Exception as e:
             print(e)
 
@@ -130,7 +130,7 @@ class Meijing(object):
         response = requests.get(url=url, headers=headers)
         info = response.text.replace(' ', '')
         link = re.search('href="(http://www\.nbd\.com\.cn/columns/298\?last_article=\d+&version_column=v5)', info).group(1)
-
+        print(link)
         re_link = re.compile('(http://www\.nbd\.com\.cn/articles/\d+-\d+-\d+/\d+.html)')
         articlelink = re_link.findall(info)
         articlelinks = set(articlelink)
@@ -141,7 +141,7 @@ class Meijing(object):
         re_read = re.compile('(\d+?)阅读')
         re_reads = re_read.findall(info)
 
-        for i,j,k in zip(articlelinks, re_imglinks, re_reads):
+        for i, j, k in zip(articlelinks, re_imglinks, re_reads):
             if self.bf.is_contains(i):
                 print('bloom_filter已经存在{}'.format(i))
             else:
@@ -209,6 +209,7 @@ def start():
     try:
         while True:
             link = meijing.more(morelink)
+            print(link)
             meijing.more(link)
     except Exception as e:
         print(e)
