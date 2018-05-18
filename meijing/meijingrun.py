@@ -107,7 +107,6 @@ class Meijing(object):
 
             more = soup.select('#more')[0].get('href')
             return more
-            print(more)
         except Exception as e:
             print(e)
 
@@ -202,14 +201,12 @@ class Meijing(object):
 
         return link
 
-
 def start():
     meijing = Meijing()
     morelink = meijing.meijingstart()
     try:
         while True:
             link = meijing.more(morelink)
-            print(link)
             meijing.more(link)
     except Exception as e:
         print(e)
