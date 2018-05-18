@@ -92,8 +92,8 @@ class Meijing(object):
                             imglink = qiniufetch(imglink, file_name)
                             article.title_img = imglink
                         except:
-                            article.desc = None
-                            article.title_img = None
+                            article.desc = ''
+                            article.title_img = ''
                         article.title = title
                         article.source_detail = source
                         article.post_time = time
@@ -105,14 +105,15 @@ class Meijing(object):
                         article.crawler_time = datetime.datetime.now()
                         article.insert_db()
 
-            more = soup.select('#more')[0].get('href')
-            return more
+            morelink = soup.select('#more')[0].get('href')
+            return morelink
         except Exception as e:
             print(e)
 
 
 
-    def more(self,url):
+def more(url):
+    try:
         headers = {
                 'Accept':'*/*;q=0.5, text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
                 'Accept-Encoding':'gzip, deflate',
@@ -140,11 +141,12 @@ class Meijing(object):
         re_read = re.compile('(\d+?)阅读')
         re_reads = re_read.findall(info)
 
+        meijin = Meijing()
         for i, j, k in zip(articlelinks, re_imglinks, re_reads):
-            if self.bf.is_contains(i):
+            if meijin.bf.is_contains(i):
                 print('bloom_filter已经存在{}'.format(i))
             else:
-                self.bf.insert(i)
+                meijin.bf.insert(i)
                 print('bloom_filter不存在，插入新的url:{}'.format(i))
                 proxies = [{"http": "http://192.168.0.96:3234"},
                            {"http": "http://192.168.0.93:3234"},
@@ -165,51 +167,52 @@ class Meijing(object):
                 }
                 response = requests.get(url=i, headers=headers, proxies=proxies[random.randint(0, 9)])
                 soup = BeautifulSoup(response.text, 'lxml')
-
-                title = soup.select('.g-article-top > h1')[0].text.strip()
-                source = soup.select('.source')[0].text.strip()
-                time = soup.select('.time')[0].text.strip()
-                content = soup.select('.g-articl-text')[0]
-                content = content.prettify()
-                img_replace = ImageReplace()
-                con = img_replace.image_download(content)
-                tag = soup.select('.u-aticle-tag > span')
-                category = soup.select('.u-column')[0].text
-                L = []
-                for a in tag:
-                    tagList = a.text
-                    L.append(tagList)
                 try:
-                    desc = soup.select('.g-article-abstract > p')[0].text
-                    article.desc = desc
-                    file_name = j
-                    j = qiniufetch(j, file_name)
-                    article.title_img = j
-                except:
-                    article.desc = None
-                    article.title_img = None
-                article.title = title
-                article.source_detail = source
-                article.post_time = time
-                article.body = con
-                article.tag = L
-                article.category = category
-                article.read_num = k
-                article.url = i
-                article.crawler_time = datetime.datetime.now()
-                article.insert_db()
-
-        return link
+                    title = soup.select('.g-article-top > h1')[0].text.strip()
+                    source = soup.select('.source')[0].text.strip()
+                    time = soup.select('.time')[0].text.strip()
+                    content = soup.select('.g-articl-text')[0]
+                    content = content.prettify()
+                    img_replace = ImageReplace()
+                    con = img_replace.image_download(content)
+                    tag = soup.select('.u-aticle-tag > span')
+                    category = soup.select('.u-column')[0].text
+                    L = []
+                    for a in tag:
+                        tagList = a.text
+                        L.append(tagList)
+                    try:
+                        desc = soup.select('.g-article-abstract > p')[0].text
+                        article.desc = desc
+                        file_name = j
+                        j = qiniufetch(j, file_name)
+                        article.title_img = j
+                    except:
+                        article.desc = ''
+                        article.title_img = ''
+                    article.title = title
+                    article.source_detail = source
+                    article.post_time = time
+                    article.body = con
+                    article.tag = L
+                    article.category = category
+                    article.read_num = k
+                    article.url = i
+                    article.crawler_time = datetime.datetime.now()
+                    article.insert_db()
+                except Exception as e:
+                    print(e)
+        return more(link)
+    except Exception as e:
+        print(e)
 
 def start():
     meijing = Meijing()
     morelink = meijing.meijingstart()
-    try:
-        while True:
-            link = meijing.more(morelink)
-            meijing.more(link)
-    except Exception as e:
-        print(e)
+    more(morelink)
+
+
+
 
 
 
