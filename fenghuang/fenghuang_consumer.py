@@ -32,7 +32,7 @@ class Consumer:
 
     def consume_connect(self):
         connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
-                                                                    port=setting['rabbitmq_port']))
+                                                                    port=setting['rabbitmq_port'],heartbeat=10))
         self.channel = connect.channel()
         self.channel.queue_declare(queue='fenghuang_article', durable=True)
         self.channel.basic_qos(prefetch_count=1)
@@ -67,10 +67,11 @@ class Consumer:
             except Exception as e:
                 print('网络请求错误', e)
         try:
-            self.html_parse(con, bod)
+            article_ready = self.html_parse(con, bod)
         except Exception as e:
             print(e)
         ch.basic_ack(delivery_tag=method.delivery_tag)
+        article_ready.insert_db()
         print('消费一篇文章')
         # article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
         # con = article_web.contact()
@@ -100,7 +101,7 @@ class Consumer:
         article.source_detail = source_detail
         article.body = readable_article
         article.crawler_time = datetime.datetime.now()
-
-        article.insert_db()
-        print('一篇文张入库成功')
+        return article
+        # article.insert_db()
+        # print('一篇文张入库成功')
 
