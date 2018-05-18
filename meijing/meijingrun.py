@@ -67,7 +67,13 @@ class Meijing(object):
                             'Cache - Control': 'max - age = 0',
                             'Connection': 'keep - alive'
                         }
-                        response = requests.get(url=link, headers=headers, proxies=proxies[random.randint(0, 9)])
+                        while True:
+                            try:
+                                response = requests.get(url=link, headers=headers, proxies=proxies[random.randint(0, 9)])
+                                break
+                            except Exception as e:
+                                print(e)
+
                         soup1 = BeautifulSoup(response.text, 'lxml')
 
                         title = soup1.select('.g-article-top > h1')[0].text.strip()
@@ -165,7 +171,12 @@ def more(url):
                     'Cache - Control': 'max - age = 0',
                     'Connection': 'keep - alive'
                 }
-                response = requests.get(url=i, headers=headers, proxies=proxies[random.randint(0, 9)])
+                while True:
+                    try:
+                        response = requests.get(url=i, headers=headers, proxies=proxies[random.randint(0, 9)])
+                        break
+                    except Exception as e:
+                        print(e)
                 soup = BeautifulSoup(response.text, 'lxml')
                 try:
                     title = soup.select('.g-article-top > h1')[0].text.strip()
@@ -202,7 +213,7 @@ def more(url):
                     article.insert_db()
                 except Exception as e:
                     print(e)
-        return more(link)
+        more(link)
     except Exception as e:
         print(e)
 
@@ -210,6 +221,7 @@ def start():
     meijing = Meijing()
     morelink = meijing.meijingstart()
     more(morelink)
+
 
 
 
