@@ -44,7 +44,7 @@ def qiniufetch(url,file_name):
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
-    if 'http://' in file_name:
+    if 'http://' or 'https://' in file_name:
         image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
         con = image_download.contact()
         # while True:
@@ -60,15 +60,19 @@ def qiniufetch(url,file_name):
         #         print(e)
         # if con == False:
         #     return None
-        filename_1 = file_name.replace('http://','')
+        filename_1 = file_name.replace('http://','') and file_name.replace('https://','')
+        filename_1 = filename_1.replace("/",'') and filename_1.replace('?','')
         if '.webp' in filename_1:
             filename = filename_1.replace('.webp','.jpg')
         elif '.png' in filename_1:
             filename = filename_1.replace('.png','.jpg')
         else:
-            filename = file_name
-        with open('article.jpg'.format(filename), 'wb') as f:
-            f.write(con)
+            filename = filename_1
+        if con is False:
+            return url
+        else:
+            with open('article.jpg'.format(filename), 'wb') as f:
+                f.write(con)
     else:
         print('图片格式不标准')
         file_url = url
@@ -89,8 +93,13 @@ def qiniufetch(url,file_name):
     localfile = './article.jpg'
     ret, info = put_file(token, key, localfile)
     # print(info)
-    assert ret['key'] == key
-    assert ret['hash'] == etag(localfile)
+    while True:
+        try:
+            assert ret['key'] == key
+            assert ret['hash'] == etag(localfile)
+            break
+        except:
+            continue
 
     print('上传图片{}成功'.format(filename))
     bucket_domain = 'http://p6cbf0l2n.bkt.clouddn.com'

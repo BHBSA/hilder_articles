@@ -54,7 +54,7 @@ class Article:
         coll = mongo.get_collection_object()
         data = serialization_info(self)
         coll.insert_one(data)
-        print('插入一条数据', data)
+        print('插入一条数据')
 
     def to_dict(self):
         data = serialization_info(self)

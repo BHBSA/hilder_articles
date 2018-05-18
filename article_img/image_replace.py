@@ -17,8 +17,16 @@ class ImageReplace():
         # for article in article_list:
             # article_id = article['article_id']
             # body = article['body']
-
-        image_url_list = re.findall('src="(.*?)"',article)
+        if re.findall('data-src="(.*?)"',article):
+            image_url_list = re.findall('data-src="(.*?)"',article)
+            if len(image_url_list) == 0:
+                print('无图片可更换！')
+                return article
+            else:
+                new_body = re.sub('data-src="(.*?)"', self.replace, article)
+                return new_body
+        else:
+            image_url_list = re.findall('src="(.*?)"',article)
         if len(image_url_list) == 0:
             print('无图片可更换！')
             return article
