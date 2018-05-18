@@ -15,7 +15,13 @@ def getarticle1(url):
                    {"http": "http://192.168.0.101:3234"},
                    {"http": "http://192.168.0.102:3234"},
                    {"http": "http://192.168.0.103:3234"}, ]
-        response = requests.get(url=url, proxies=proxies[random.randint(0, 9)])
+        while True:
+            try:
+                response = requests.get(url=url, proxies=proxies[random.randint(0, 9)])
+                break
+            except Exception as e:
+                print(e)
+
         response.encoding = 'GBK'
         soup = BeautifulSoup(response.text, 'lxml')
 
