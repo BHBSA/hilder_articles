@@ -45,8 +45,8 @@ def qiniufetch(url,file_name):
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
     if 'http://' or 'https://' in file_name:
-        image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
-        con = image_download.contact()
+        # image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
+        # con = image_download.contact()
         # while True:
         #     try:
         #         proxy = proxies[random.randint(0, 9)]
@@ -60,6 +60,11 @@ def qiniufetch(url,file_name):
         #         print(e)
         # if con == False:
         #     return None
+        try:
+            res = requests.get(url, headers=headers,timeout=10)
+            con = res.content
+        except:
+            return None
         filename_1 = file_name.replace('http://','') and file_name.replace('https://','')
         filename_1 = filename_1.replace("/",'') and filename_1.replace('?','')
         if '.webp' in filename_1:
