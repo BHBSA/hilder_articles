@@ -10,8 +10,8 @@ from threading import Thread
 if __name__ == '__main__':
     con = Consumer()
     wangyi = WangyiConsumer()
-    Process(target=con.start_consume).start()
-    Process(target=wangyi.start_consume).start()
+    Thread(target=con.start_consume).start()
+    Thread(target=wangyi.start_consume).start()
     Thread(target=weixin_start).start()
     Thread(target=fangtianxia_start).start()
     Thread(target=meijing_start).start()
