@@ -13,7 +13,9 @@ from multiprocessing import Process
 from gevent import monkey
 import gevent
 import random
+from lib.log import LogHandler
 
+log = LogHandler("wangyi")
 setting = yaml.load(open('config_local.yaml'))
 
 headers = {
@@ -50,7 +52,7 @@ class WangyiConsumer:
                 disconnected = False
                 self.channel.start_consuming()
             except Exception as e:
-                print(e)
+                log.error(e)
                 disconnected = True
                 self.consume_connect()
 
@@ -67,15 +69,16 @@ class WangyiConsumer:
                 con = res.text
                 break
             except Exception as e:
-                print('网络请求错误', e)
+                log.error('网络请求错误')
         try:
             article_ready = self.html_parse(con, bod)
         except Exception as e:
-            print(e)
+            log.error(e)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
-        print('消费一篇文章')
+        log.info('消费一篇文章')
 
     def html_parse(self, con, bod):
         html = etree.HTML(con)

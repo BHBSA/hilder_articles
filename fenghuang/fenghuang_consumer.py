@@ -10,7 +10,9 @@ from proxy_connection import Proxy_contact
 import random
 import time
 import pika
+from lib.log import LogHandler
 
+log = LogHandler("fenghuang")
 setting = yaml.load(open('config_local.yaml'))
 
 headers = {
@@ -47,7 +49,7 @@ class Consumer:
                 disconnected = False
                 self.channel.start_consuming()
             except Exception as e:
-                print(e)
+                log.error(e)
                 disconnected = True
                 self.consume_connect()
 
@@ -62,18 +64,19 @@ class Consumer:
         while True:
             try:
                 res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
-                con = res.content
+                con = res.content.decode()
                 break
             except Exception as e:
-                print('网络请求错误', e)
+                log.error('网络请求错误{}'.format(url))
         try:
             article_ready = self.html_parse(con, bod)
         except Exception as e:
-            print(e)
+            log.error(e)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
-        print('消费一篇文章')
+        log.info('消费一篇文章')
         # article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
         # con = article_web.contact()
         # if con == False:
@@ -83,9 +86,7 @@ class Consumer:
         #     self.html_parse(con,bod)
         #     ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def html_parse(self,content,bod):
-
-        con = content.decode()
+    def html_parse(self,con,bod):
         title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
         post_time = re.search('<div class="marb-5"><span>(.*?)</span>',con).group(1)
         source_detail = re.search('来源：(.*?)</span',con).group(1)

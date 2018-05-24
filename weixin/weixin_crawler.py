@@ -7,6 +7,9 @@ from lxml import etree
 import datetime
 from lib.bloom_filter import BloomFilter
 import yaml
+from lib.log import LogHandler
+
+log = LogHandler("weixin")
 setting = yaml.load(open('config_local.yaml'))
 
 url_dict = {
@@ -60,30 +63,34 @@ def article_parse(article_url,source_detail):
             res = requests.get(url,headers=headers,proxies=proxy)
             break
         except Exception as e:
-            print(e)
+            log.error(e)
     html = etree.HTML(res.text)
     try:
-        title = html.xpath("//h2[@id='activity-name']/text()")[0]
 
+        title = html.xpath("//h2[@id='activity-name']/text()")[0]
+        if len(title.strip()) == 0:
+            title = re.search("rich_media_title_ios'>(.*?)</span",res.text).group(1)
         sign = source_detail + title
         if bf.is_contains(sign):  # 过滤详情页
-            print('bloom_filter已经存在{}'.format(sign))
+            log.info('bloom_filter已经存在{}'.format(sign))
             return
         else:
             bf.insert(sign)
-            print('bloom_filter不存在，插入新的url:{}'.format(sign))
+            log.info('bloom_filter不存在，插入新的url:{}'.format(sign))
 
         try:
             author = re.search('作者&nbsp;(.*?)</',res.text).group(1)
         except:
             author = None
-
-        post_time = html.xpath("//em[@id='publish_time']/text()")[0]
+        try:
+            post_time = re.findall('publish_time = "(.*?)"',res.text)[0]
+        except:
+            post_time = None
         content = html.xpath("//div[@class='rich_media_content ']")[0]
         body = etree.tounicode(content)
         # body = re.sub('data-src=','src',body)
     except Exception as e:
-        print('文章解析失败',e)
+        log.error('文章解析失败')
         return
 
     img_change = ImageReplace()
@@ -96,7 +103,7 @@ def article_parse(article_url,source_detail):
     article.post_time = post_time
     article.crawler_time = datetime.datetime.now()
     article.insert_db()
-    print("文章已入库")
+    log.info("文章已入库")
 
 
 

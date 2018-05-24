@@ -5,6 +5,8 @@ import random
 from qiniu import Auth, put_file, etag
 import qiniu.config
 from  proxy_connection import Proxy_contact
+from lib.log import LogHandler
+
 # from qiniu.auth import digest
 """
     七牛云自带的图片爬取功能
@@ -39,6 +41,8 @@ proxies = [{"http": "http://192.168.0.96:3234"},
                         {"http": "http://192.168.0.102:3234"},
                         {"http": "http://192.168.0.103:3234"}, ]
 bucket = 'articleimage'
+log = LogHandler("qiniu")
+
 def qiniufetch(url,file_name):
 
     headers={"user_agent":
@@ -79,7 +83,7 @@ def qiniufetch(url,file_name):
             with open('article.jpg'.format(filename), 'wb') as f:
                 f.write(con)
     else:
-        print('图片格式不标准')
+        log.info('图片格式不标准')
         file_url = url
         return file_url
 
@@ -106,7 +110,7 @@ def qiniufetch(url,file_name):
         except:
             continue
 
-    print('上传图片{}成功'.format(filename))
+    log.info('上传图片{}成功'.format(filename))
     bucket_domain = 'http://p6cbf0l2n.bkt.clouddn.com'
     file_url = bucket_domain + "/" + filename
     return file_url

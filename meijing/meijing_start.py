@@ -16,9 +16,11 @@ import datetime
 import re
 import random
 from article_img.image_replace import ImageReplace
+from lib.log import LogHandler
 
 setting = yaml.load(open('config_local.yaml'))
 article = Article('每经')
+log = LogHandler("meijing")
 
 class Meijing(object):
     def __init__(self):
@@ -46,10 +48,10 @@ class Meijing(object):
                     read_num = i.select('.f-source > span')[2].text.strip().strip('阅读')               #阅读量
                     link = i.select('.f-title')[0].get('href')                                          #链接
                     if self.bf.is_contains(link):
-                        print('bloom_filter已经存在{}'.format(link))
+                        log.info('bloom_filter已经存在{}'.format(link))
                     else:
                         self.bf.insert(link)
-                        print('bloom_filter不存在，插入新的url:{}'.format(link))
+                        log.info('bloom_filter不存在，插入新的url:{}'.format(link))
                         proxies = [{"http": "http://192.168.0.96:3234"},
                                    {"http": "http://192.168.0.93:3234"},
                                    {"http": "http://192.168.0.90:3234"},
@@ -72,7 +74,7 @@ class Meijing(object):
                                 response = requests.get(url=link, headers=headers, proxies=proxies[random.randint(0, 9)])
                                 break
                             except Exception as e:
-                                print(e)
+                                log.error(e)
 
                         soup1 = BeautifulSoup(response.text, 'lxml')
 
@@ -114,7 +116,7 @@ class Meijing(object):
             morelink = soup.select('#more')[0].get('href')
             return morelink
         except Exception as e:
-            print(e)
+            log.error(e)
 
 
 
@@ -215,7 +217,7 @@ def more(url):
                     print(e)
         more(link)
     except Exception as e:
-        print(e)
+        l(e)
 
 def meijing_start():
     meijing = Meijing()

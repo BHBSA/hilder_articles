@@ -11,8 +11,10 @@ import time
 import random
 import pika
 from article_img.qiniu_fetch import qiniufetch
+from lib.log import LogHandler
 
 setting = yaml.load(open('config_local.yaml'))
+log = LogHandler('fenghuang')
 
 class Fenghuang:
     def __init__(self):
@@ -87,7 +89,7 @@ class Fenghuang:
                         json_dict = json.loads(res.text)
                         break
                     except Exception as e:
-                        print(e)
+                        log.error(e)
                         continue
 
                 if len(json_dict['data']['newslist']) == 0:
@@ -108,11 +110,11 @@ class Fenghuang:
                             continue
                         title_img_url = news_info['pic_url']
                         if self.bf.is_contains(url):  # 过滤详情页url
-                            print('bloom_filter已经存在{}'.format(url))
+                            log.info('bloom_filter已经存在{}'.format(url))
                             continue
                         else:
                             self.bf.insert(url)
-                            print('bloom_filter不存在，插入新的url:{}'.format(url))
+                            log.info('bloom_filter不存在，插入新的url:{}'.format(url))
                             new_title_img = qiniufetch(title_img_url, title_img_url)
                             article = Article('凤凰网')
                             article.url = url
@@ -131,9 +133,9 @@ class Fenghuang:
                                                           routing_key='black',
                                                           body=message,
                                                           properties=pika.BasicProperties(delivery_mode=2))
-                                    print('已经放入队列')
+                                    log.info('已经放入队列')
                                 except Exception as e:
-                                    print(e)
+                                    log.error(e)
                                     self.connect()
                                     disconnected = True
 

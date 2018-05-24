@@ -2,10 +2,13 @@ from lib.mongo import Mongo
 from .qiniu_fetch import qiniufetch
 import re
 import yaml
+from lib.log import LogHandler
+
 
 setting = yaml.load(open('config_local.yaml'))
 mongo = Mongo(setting['mongo']['host'],setting['mongo']['port'],setting['mongo']['db_name'],setting['mongo']['coll_comm'])
 coll = mongo.get_collection_object()
+log = LogHandler("img_replace")
 
 class ImageReplace():
     def __init__(self,):
@@ -20,7 +23,7 @@ class ImageReplace():
         if re.findall('data-src="(.*?)"',article):
             image_url_list = re.findall('data-src="(.*?)"',article)
             if len(image_url_list) == 0:
-                print('无图片可更换！')
+                log.info('无图片可更换！')
                 return article
             else:
                 new_body = re.sub('data-src="(.*?)"', self.replace, article)
@@ -28,7 +31,7 @@ class ImageReplace():
         else:
             image_url_list = re.findall('src="(.*?)"',article)
             if len(image_url_list) == 0:
-                print('无图片可更换！')
+                log.info('无图片可更换！')
                 return article
             else:
                 new_body = re.sub('src="(.*?)"',self.replace,article)

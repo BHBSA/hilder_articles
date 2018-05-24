@@ -9,9 +9,13 @@ from article_img.qiniu_fetch import qiniufetch
 import time
 import yaml
 import datetime
+from lib.log import LogHandler
+
 
 setting = yaml.load(open('config_local.yaml'))
 article = Article('房天下')
+log = LogHandler("fangtianxia")
+
 class Fangtianxia(object):
     def __init__(self):
         self.bf = BloomFilter(host=setting['redies_host'],
@@ -42,10 +46,10 @@ class Fangtianxia(object):
             #分类
             category = html.select('.xw-tit')[0].text
             if self.bf.is_contains(link1):
-                print('bloom_filter已经存在{}'.format(link1))
+                log.info('bloom_filter已经存在{}'.format(link1))
             else:
                 self.bf.insert(link1)
-                print('bloom_filter不存在，插入新的url:{}'.format(link1))
+                log.info('bloom_filter不存在，插入新的url:{}'.format(link1))
                 file_name = link2
                 link2 = qiniufetch(link2, file_name)
 
@@ -85,10 +89,10 @@ class Fangtianxia(object):
                     return None
 
             if self.bf.is_contains(link5):
-                print('bloom_filter已经存在{}'.format(link5))
+                log.info('bloom_filter已经存在{}'.format(link5))
             else:
                 self.bf.insert(link5)
-                print('bloom_filter不存在，插入新的url:{}'.format(link5))
+                log.info('bloom_filter不存在，插入新的url:{}'.format(link5))
                 file_name = link6
                 link6 = qiniufetch(link6, file_name)
                 #第二个链接添加字段
@@ -126,7 +130,7 @@ class Fangtianxia(object):
                 else:
                     return None
         except Exception as e:
-            print(e)
+            log.error(e)
     #房产要闻
     def House_News(self, url):
         try:
@@ -150,10 +154,10 @@ class Fangtianxia(object):
             #分类
             category = html.select('.xw-tit')[1].text
             if self.bf.is_contains(link1):
-                print('bloom_filter已经存在{}'.format(link1))
+                log.info('bloom_filter已经存在{}'.format(link1))
             else:
                 self.bf.insert(link1)
-                print('bloom_filter不存在，插入新的url:{}'.format(link1))
+                log.info('bloom_filter不存在，插入新的url:{}'.format(link1))
                 file_name = link2
                 link2 = qiniufetch(link2, file_name)
 
@@ -192,10 +196,10 @@ class Fangtianxia(object):
                 else:
                     return None
             if self.bf.is_contains(link5):
-                print('bloom_filter已经存在{}'.format(link5))
+                log.info('bloom_filter已经存在{}'.format(link5))
             else:
                 self.bf.insert(link5)
-                print('bloom_filter不存在，插入新的url:{}'.format(link5))
+                log.info('bloom_filter不存在，插入新的url:{}'.format(link5))
                 file_name = link6
                 link6 = qiniufetch(link6, file_name)
                 # 第二个链接添加字段
@@ -233,7 +237,7 @@ class Fangtianxia(object):
                 else:
                     return None
         except Exception as e:
-            print(e)
+            log.error(e)
     #本地热点
     def localhot(self, url):
         try:
@@ -250,11 +254,11 @@ class Fangtianxia(object):
                 imglink = i.select('a > .news-img')[0].get('src')
 
                 if self.bf.is_contains(link):
-                    print('bloom_filter已经存在{}'.format(link))
+                    log.info('bloom_filter已经存在{}'.format(link))
                     continue
                 else:
                     self.bf.insert(link)
-                    print('bloom_filter不存在，插入新的url:{}'.format(link))
+                    log.info('bloom_filter不存在，插入新的url:{}'.format(link))
                     file_name = imglink
                     imglink = qiniufetch(imglink, file_name)
                     if 'open' in link:
@@ -291,11 +295,11 @@ class Fangtianxia(object):
             for j in eachpiece2:
                 link = j.select('span > a')[0].get('href')
                 if self.bf.is_contains(link):
-                    print('bloom_filter已经存在{}'.format(link))
+                    log.info('bloom_filter已经存在{}'.format(link))
                     continue
                 else:
                     self.bf.insert(link)
-                    print('bloom_filter不存在，插入新的url:{}'.format(link))
+                    log.info('bloom_filter不存在，插入新的url:{}'.format(link))
                     if 'open' in link:
                         list3 = getarticle2(link)
                         article.title = list3[0]
@@ -325,7 +329,7 @@ class Fangtianxia(object):
                     else:
                         return None
         except Exception as e:
-            print(e)
+            log.error(e)
     #未分类新闻
     def UnfiledNews(self, url):
         try:
@@ -341,11 +345,11 @@ class Fangtianxia(object):
 
                 zan = i.select('.news-content > div > .like')[0].text.strip('（').strip('）')
                 if self.bf.is_contains(link):
-                    print('bloom_filter已经存在{}'.format(link))
+                    log.info('bloom_filter已经存在{}'.format(link))
                     continue
                 else:
                     self.bf.insert(link)
-                    print('bloom_filter不存在，插入新的url:{}'.format(link))
+                    log.info('bloom_filter不存在，插入新的url:{}'.format(link))
                     file_name = imglink
                     imglink = qiniufetch(imglink, file_name)
                     if 'open' in link:
@@ -380,7 +384,7 @@ class Fangtianxia(object):
                     else:
                         return None
         except Exception as e:
-            print(e)
+            log.error(e)
     #列表页链接
     def getlinks(self, url):
         try:
@@ -409,11 +413,11 @@ class Fangtianxia(object):
 
                             link1 = imglink[0].get('href')
                             if self.bf.is_contains(link1):
-                                print('bloom_filter已经存在{}'.format(link1))
+                                log.info('bloom_filter已经存在{}'.format(link1))
                                 continue
                             else:
                                 self.bf.insert(link1)
-                                print('bloom_filter不存在，插入新的url:{}'.format(link1))
+                                log.info('bloom_filter不存在，插入新的url:{}'.format(link1))
                                 file_name = imgsrc1
                                 imgsrc1 = qiniufetch(imgsrc1, file_name)
                                 if 'open' in link1:
@@ -447,11 +451,11 @@ class Fangtianxia(object):
                         else:
                             link2 = i.select('h3 > a')[0].get('href')
                             if self.bf.is_contains(link2):
-                                print('bloom_filter已经存在{}'.format(link2))
+                                log.info('bloom_filter已经存在{}'.format(link2))
                                 continue
                             else:
                                 self.bf.insert(link2)
-                                print('bloom_filter不存在，插入新的url:{}'.format(link2))
+                                log.info('bloom_filter不存在，插入新的url:{}'.format(link2))
                                 if 'open' in link2:
                                     list3 = getarticle2(link2)
                                     article.title = list3[0]
@@ -481,7 +485,7 @@ class Fangtianxia(object):
                 else:
                     break
         except Exception as e:
-            print(e)
+            log.error(e)
 def fangtianxia_start():
     list1 = get_All_City()
     fangtianxia = Fangtianxia()

@@ -11,7 +11,9 @@ import time
 import random
 import pika
 from article_img.qiniu_fetch import qiniufetch
+from lib.log import LogHandler
 
+log = LogHandler('wangyi')
 setting = yaml.load(open('config_local.yaml'))
 
 class Wangyi:
@@ -67,14 +69,14 @@ class Wangyi:
                 news_res = requests.get(city_url, headers=self.headers,proxies=proxy)
                 break
             except Exception as e:
-                print(e)
+                log.error(e)
                 continue
         news_res.encoding = 'gbk'
         news_html = etree.HTML(news_res.text)
         try:
             cate_list = news_html.xpath("//div[@class='importent-news']")
         except Exception as e:
-            print(e)
+            log.info(e)
             return
         for cate in cate_list:
             cate_name = cate.xpath("./h2/a/text()")[0]
@@ -82,11 +84,11 @@ class Wangyi:
             for news in news_list:
                 url = news.xpath("./h3/a/@href")[0]
                 if self.bf.is_contains(url):  # 过滤详情页url
-                    print('bloom_filter已经存在{}'.format(url))
+                    log.info('bloom_filter已经存在{}'.format(url))
                     continue
                 else:
                     self.bf.insert(url)
-                    print('bloom_filter不存在，插入新的url:{}'.format(url))
+                    log.info('bloom_filter不存在，插入新的url:{}'.format(url))
                 try:
                     desc = news.xpath("./div[@class='news-detail']/p/text()")[0]
                 except:
@@ -106,8 +108,8 @@ class Wangyi:
                                                    routing_key='white',
                                                    body=message,
                                                    properties=pika.BasicProperties(delivery_mode=2))
-                        print('已经放入队列')
+                        log.info('已经放入队列')
                     except Exception as e:
-                        print(e)
+                        log.error(e)
                         self.connect()
                         disconnected = True
