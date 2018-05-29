@@ -2,26 +2,27 @@ import requests
 import yaml
 import json
 from lib.mongo import Mongo
+from lib.log import LogHandler
 from toutiao.comments import Comments
-setting = yaml.load(open('config_local.yaml'))
 import time
-import random
 
-class Comments_crawler():
+setting = yaml.load(open('config_local.yaml'))
+log = LogHandler("toutiao_comments")
+
+class CommentsCrawler:
     def __init__(self):
         self.headers={
             "User-Agent": "Mozilla/5.0(iPhone;U;CPUiPhoneOS4_3_3likeMacOSX;en-us)AppleWebKit/533.17.9(KHTML,likeGecko)Version/5.0.2Mobile/8J2Safari/6533.18.5"
         }
         self.temp_coll = Mongo(setting['mongo']['host'], setting['mongo']['port'], setting['mongo']['db_name'],
-                          setting['mongo']['url_code']).get_collection_object()
+                          setting['mongo']['url_code'])
 
 
     def comment_url(self):
         while True:
             try:
-                temp_coll = self.temp_coll
+                temp_coll = self.temp_coll.connect()
                 code_list = temp_coll.find().sort([('crawler_time',-1)])
-                # print(code_list)
                 for group in code_list:
                     if group['comment_count'] == '0':
                         continue
@@ -32,9 +33,8 @@ class Comments_crawler():
                         res = requests.get(url,headers=self.headers,)
                         self.comment_info(res, id)
                         time.sleep(180)
-
             except Exception as e:
-                print(e)
+                log.error(e)
 
     def comment_info(self,res,id):
         comment_dict_list = json.loads(res.text)
@@ -42,7 +42,6 @@ class Comments_crawler():
         for comment_dict in comment_dict_list:
             try:
                 comment = Comments()
-
                 comm_dict = comment_dict["comment"]
                 comment._id = comm_dict["id"]
                 comment.user_id = comm_dict["user_id"]
@@ -51,12 +50,11 @@ class Comments_crawler():
                 comment.good_count = comm_dict["digg_count"]
                 comment.create_time = comm_dict["create_time"]
                 comment.article_id = id
-
                 comment.insert_db()
             except Exception as e:
-                print("评论重复",e)
+                log.error("评论重复",e)
                 continue
 
 if __name__ == '__main__':
-    crawler = Comments_crawler()
+    crawler = CommentsCrawler()
     crawler.comment_url()

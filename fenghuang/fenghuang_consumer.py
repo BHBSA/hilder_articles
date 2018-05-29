@@ -31,7 +31,6 @@ proxies = [{"http": "http://192.168.0.96:3234"},
            {"http": "http://192.168.0.103:3234"}, ]
 
 class Consumer:
-
     def consume_connect(self):
         connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
                                                                     port=setting['rabbitmq_port'],heartbeat=10))
@@ -53,12 +52,10 @@ class Consumer:
                 disconnected = True
                 self.consume_connect()
 
-
     def callback(self,ch, method, properties, body):
         bod = json.loads(body.decode())
         article = Article(bod['source'])
         article.dict_to_attr(bod)
-        # print(article.dict_to_attr(body))
         url = article.url
 
         while True:
@@ -77,14 +74,6 @@ class Consumer:
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
         log.info('消费一篇文章')
-        # article_web = Proxy_contact(app_name='fenghuang',method='get',url=url,headers=headers)
-        # con = article_web.contact()
-        # if con == False:
-        #     ch.basic_ack(delivery_tag=method.delivery_tag)
-        #     print('文章请求失败，跳过此文章！')
-        # else:
-        #     self.html_parse(con,bod)
-        #     ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def html_parse(self,con,bod):
         title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
@@ -97,13 +86,9 @@ class Consumer:
 
         article = Article(bod['source'])
         article.dict_to_attr(bod)
-
         article.title = title
         article.post_time = post_time
         article.source_detail = source_detail
         article.body = readable_article
         article.crawler_time = datetime.datetime.now()
         return article
-        # article.insert_db()
-        # print('一篇文张入库成功')
-

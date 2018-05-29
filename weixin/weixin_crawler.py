@@ -88,7 +88,6 @@ def article_parse(article_url,source_detail):
             post_time = None
         content = html.xpath("//div[@class='rich_media_content ']")[0]
         body = etree.tounicode(content)
-        # body = re.sub('data-src=','src',body)
     except Exception as e:
         log.error('文章解析失败')
         return
@@ -104,9 +103,6 @@ def article_parse(article_url,source_detail):
     article.crawler_time = datetime.datetime.now()
     article.insert_db()
     log.info("文章已入库")
-
-
-
 
 
 if __name__ == '__main__':

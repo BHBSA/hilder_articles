@@ -152,10 +152,10 @@ def more(url):
         meijin = Meijing()
         for i, j, k in zip(articlelinks, re_imglinks, re_reads):
             if meijin.bf.is_contains(i):
-                print('bloom_filter已经存在{}'.format(i))
+                log.info('bloom_filter已经存在{}'.format(i))
             else:
                 meijin.bf.insert(i)
-                print('bloom_filter不存在，插入新的url:{}'.format(i))
+                log.info('bloom_filter不存在，插入新的url:{}'.format(i))
                 proxies = [{"http": "http://192.168.0.96:3234"},
                            {"http": "http://192.168.0.93:3234"},
                            {"http": "http://192.168.0.90:3234"},
@@ -178,7 +178,7 @@ def more(url):
                         response = requests.get(url=i, headers=headers, proxies=proxies[random.randint(0, 9)])
                         break
                     except Exception as e:
-                        print(e)
+                        log.info(e)
                 soup = BeautifulSoup(response.text, 'lxml')
                 try:
                     title = soup.select('.g-article-top > h1')[0].text.strip()
@@ -190,10 +190,10 @@ def more(url):
                     con = img_replace.image_download(content)
                     tag = soup.select('.u-aticle-tag > span')
                     category = soup.select('.u-column')[0].text
-                    L = []
+                    li = []
                     for a in tag:
                         tagList = a.text
-                        L.append(tagList)
+                        li.append(tagList)
                     try:
                         desc = soup.select('.g-article-abstract > p')[0].text
                         article.desc = desc
@@ -207,7 +207,7 @@ def more(url):
                     article.source_detail = source
                     article.post_time = time
                     article.body = con
-                    article.tag = L
+                    article.tag = li
                     article.category = category
                     article.read_num = k
                     article.url = i
@@ -217,7 +217,7 @@ def more(url):
                     print(e)
         more(link)
     except Exception as e:
-        l(e)
+        log.error(e)
 
 def meijing_start():
     meijing = Meijing()

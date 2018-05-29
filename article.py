@@ -1,10 +1,7 @@
-import datetime
 from lib.mongo import Mongo
 import yaml
 
 setting = yaml.load(open('config_local.yaml'))
-
-
 
 def serialization_info(info):
     """
@@ -51,7 +48,7 @@ class Article:
         mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'],
                            db_name=setting['mongo']['db_name'],
                            collection_name=setting['mongo']['coll_comm'])
-        coll = mongo.get_collection_object()
+        coll = mongo.connect()
         data = serialization_info(self)
         coll.insert_one(data)
         print('插入一条数据')

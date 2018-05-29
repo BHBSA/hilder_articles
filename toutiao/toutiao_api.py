@@ -74,8 +74,6 @@ class Toutiao():
                 else:
                     self.bf.insert(url)
                     print('bloom_filter不存在，插入新的url:{}'.format(url))
-                    # res = requests.get(url,headers=self.headers)
-                    # print(res.status_code)
                     article = Article('今日头条')
                     comment_code = Comment_url()
                     try:
@@ -95,12 +93,10 @@ class Toutiao():
                         comment_code.comment_count = comment_count
                     except Exception as e:
                         print('这篇文章没有评论', title)
-                    # comment_code.insert_db()
                     try:
                         title_img = re.search('middle_image.*?"url":"(.*?.webp)', con).group(1)
-                        new_title_img = qiniufetch(title_img,'articleimage',title_img)
+                        new_title_img = qiniufetch(title_img,title_img)
                         article.title_img = new_title_img
-
                     except Exception as e:
                         print('这篇文章没有list图片:', title)
 

@@ -3,7 +3,6 @@ import yaml
 
 setting = yaml.load(open('config_local.yaml'))
 
-
 def serialization_info(info):
     """
 

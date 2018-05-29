@@ -34,7 +34,7 @@ proxies = [{"http": "http://192.168.0.96:3234"},
            {"http": "http://192.168.0.103:3234"}, ]
 
 
-class Consumer:
+class Toutiao_Consumer:
     def __init__(self):
         self.rabbit = Rabbit(host=setting['rabbitmq_host'], port=setting['rabbitmq_port'], )
 
@@ -78,14 +78,11 @@ class Consumer:
 
         article = Article(body['source'])
         article.dict_to_attr(body)
-        # print(article.dict_to_attr(body))
         url = article.url
 
         while True:
             try:
                 res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)], timeout=10)
-                # print(res.content.decode())
-                # print(proxies[random.randint(0, 9)])
                 if '<html><head></head><body></body></html>' != res.content.decode():
                     break
             except Exception as e:
@@ -93,8 +90,6 @@ class Consumer:
 
         readable_title, readable_article,source_detail = self.parse_html(res)
         article.post_time = self.get_post_time(res)
-
-        # article.title = readable_title
         article.body = readable_article
         article.source_detail  = source_detail
         article.crawler_time = datetime.datetime.now()
@@ -103,7 +98,6 @@ class Consumer:
         else:
             article.insert_db()
             print('一篇文张入库成功')
-        # 消费一条消息成功
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_consume(self):
@@ -115,6 +109,3 @@ class Consumer:
         channel.start_consuming()
 
 
-if __name__ == '__main__':
-    c = Consumer()
-    c.start_consume()
