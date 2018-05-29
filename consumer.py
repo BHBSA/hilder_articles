@@ -10,9 +10,10 @@ from html.parser import HTMLParser
 import chardet
 import random
 from  article_img.image_replace import ImageReplace
-from lxml import etree
+from lib.log import LogHandler
 
 setting = yaml.load(open('config_local.yaml'))
+log = LogHandler("toutiao_consumer")
 html_parser = HTMLParser()
 
 headers = {
@@ -86,7 +87,7 @@ class Toutiao_Consumer:
                 if '<html><head></head><body></body></html>' != res.content.decode():
                     break
             except Exception as e:
-                print('网络请求错误', e)
+                log.error('网络请求错误{}'.format(e))
 
         readable_title, readable_article,source_detail = self.parse_html(res)
         article.post_time = self.get_post_time(res)
@@ -94,10 +95,10 @@ class Toutiao_Consumer:
         article.source_detail  = source_detail
         article.crawler_time = datetime.datetime.now()
         if '<body id="readabilityBody"/>' in article.body:
-            print("文章为空")
+            log.info("文章为空")
         else:
             article.insert_db()
-            print('一篇文张入库成功')
+            log.info('一篇文张入库成功')
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_consume(self):

@@ -2,6 +2,7 @@ import requests
 import json
 from lib.bloom_filter import BloomFilter
 from lib.rabbitmq import Rabbit
+from lib.log import LogHandler
 import re
 import yaml
 from article import Article
@@ -12,9 +13,9 @@ import random
 from article_img.qiniu_fetch import qiniufetch
 
 setting = yaml.load(open('config_local.yaml'))
+log = LogHandler('toutiao_queue')
 
-
-class Toutiao():
+class Toutiao:
     def __init__(self):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
@@ -69,18 +70,18 @@ class Toutiao():
                 continue
             else:
                 if self.bf.is_contains(url):  # 过滤详情页url
-                    print('bloom_filter已经存在{}'.format(url))
+                    log.info('bloom_filter已经存在{}'.format(url))
                     continue
                 else:
                     self.bf.insert(url)
-                    print('bloom_filter不存在，插入新的url:{}'.format(url))
+                    log.info('bloom_filter不存在，插入新的url:{}'.format(url))
                     article = Article('今日头条')
                     comment_code = Comment_url()
                     try:
                         organization_author = re.search('\\"source\\":\\"(.*?)\\"', con).group(1)
                         article.organization_author = organization_author
                     except Exception as e:
-                        print('没有organization_author')
+                        log.info('没有organization_author')
                     title = re.findall('"title":"(.*?)"', con)[1]
                     article.title = title
                     article.url = url
@@ -92,20 +93,20 @@ class Toutiao():
                         article.comment_count = comment_count
                         comment_code.comment_count = comment_count
                     except Exception as e:
-                        print('这篇文章没有评论', title)
+                        log.info('{}这篇文章没有评论'.format(title))
                     try:
                         title_img = re.search('middle_image.*?"url":"(.*?.webp)', con).group(1)
                         new_title_img = qiniufetch(title_img,title_img)
                         article.title_img = new_title_img
                     except Exception as e:
-                        print('这篇文章没有list图片:', title)
+                        log.info('{}这篇文章没有list图片:'.format(title))
 
                     channel.basic_publish(
                         exchange='',
                         routing_key='article_test',
                         body=json.dumps(article.to_dict())
                     )
-                    print('已经放入队列')
+                    log.info('已经放入队列')
 
 
 if __name__ == '__main__':

@@ -48,9 +48,12 @@ class Article:
         mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'],
                            db_name=setting['mongo']['db_name'],
                            collection_name=setting['mongo']['coll_comm'])
-        coll = mongo.connect()
+        client = mongo.connect
+        coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
+        coll_1 = client[setting['mongo']['db_name']]['news_library_1']
         data = serialization_info(self)
         coll.insert_one(data)
+        coll_1.insert_one(data)
         print('插入一条数据')
 
     def to_dict(self):

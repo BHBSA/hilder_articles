@@ -26,7 +26,7 @@ def toutiao():
 def producer_run():
     schedule.every().day.at("18:30").do(fenghuang)
     schedule.every().day.at("18:30").do(wangyi)
-    schedule.every().day.at("18:30").do(toutiao)
+    schedule.every().day.at("11:20").do(toutiao)
 
     while True:
         schedule.run_pending()

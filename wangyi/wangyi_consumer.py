@@ -41,7 +41,6 @@ class WangyiConsumer:
         self.channel = connect.channel()
         self.channel.queue_declare(queue='wangyi_article', durable=True)
         self.channel.basic_qos(prefetch_count=1)
-        # self.channel.
         self.channel.basic_consume(self.callback,
                               queue='wangyi_article',
                               no_ack=False)
@@ -103,5 +102,3 @@ class WangyiConsumer:
         article.author = author
         article.crawler_time = datetime.datetime.now()
         return article
-        # article.insert_db()
-        # print('一篇文张入库成功')
