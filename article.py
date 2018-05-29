@@ -18,6 +18,7 @@ def serialization_info(info):
 
 
 class Article:
+
     def __init__(self, source, url=None, title=None, body=None, article_id=None, post_time=None, title_img=None,
                  comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None,
                  organization_author=None, city=None,source_detail = None,category = None,tag = None,desc = None):
@@ -36,25 +37,20 @@ class Article:
         self.status = 0
         self.organization_author = organization_author
         self.city = city
-        self.source_detail = source_detail      #文章详细来源网站
+        self.source_detail = source_detail      # 文章详细来源网站
         self.category = category    # 分类
         self.tag = tag              # 标签
-        self.desc = desc            #简介
-        # self.crawler_time = datetime.datetime.now()  # 抓取时间
-
-        # self.coll = Mongo(setting['mongo']['host'], setting['mongo']['port'])
+        self.desc = desc            # 简介
 
     def insert_db(self):
-        mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'],
-                           db_name=setting['mongo']['db_name'],
-                           collection_name=setting['mongo']['coll_comm'])
+        mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'])
         client = mongo.connect
         coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
         coll_1 = client[setting['mongo']['db_name']]['news_library_1']
         data = serialization_info(self)
         coll.insert_one(data)
         coll_1.insert_one(data)
-        print('插入一条数据')
+
 
     def to_dict(self):
         data = serialization_info(self)

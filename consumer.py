@@ -75,8 +75,6 @@ class Toutiao_Consumer:
 
     def callback(self, ch, method, properties, body):
         body = json.loads(body.decode())
-        print(body)
-
         article = Article(body['source'])
         article.dict_to_attr(body)
         url = article.url
