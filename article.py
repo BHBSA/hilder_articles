@@ -3,6 +3,7 @@ import yaml
 
 setting = yaml.load(open('config_local.yaml'))
 
+
 def serialization_info(info):
     """
 
@@ -21,10 +22,10 @@ class Article:
 
     def __init__(self, source, url=None, title=None, body=None, article_id=None, post_time=None, title_img=None,
                  comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None,
-                 organization_author=None, city=None,source_detail = None,category = None,tag = None,desc = None):
+                 organization_author=None, city=None, source_detail=None, category=None, tag=None, desc=None):
         self.source = source  # 文章来源
         self.url = url  # 链接
-        self.title = title  # 标题 数组
+        self.title = title  # 标题
         self.body = body  # 正文
         self.article_id = article_id  # 文章id
         self.title_img = title_img  # 列表页的图片/封面
@@ -33,14 +34,14 @@ class Article:
         self.read_num = read_num  # 阅读量 num
         self.author = author  # 作者
         self.post_time = post_time  # 文章发布时间 str
-        self.crawler_time = crawler_time
+        self.crawler_time = crawler_time  # 抓取时间
         self.status = 0
         self.organization_author = organization_author
         self.city = city
-        self.source_detail = source_detail      # 文章详细来源网站
-        self.category = category    # 分类
-        self.tag = tag              # 标签
-        self.desc = desc            # 简介
+        self.source_detail = source_detail  # 文章详细来源网站
+        self.category = category  # 分类
+        self.tag = tag  # 标签
+        self.desc = desc  # 简介
 
     def insert_db(self):
         mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'])
@@ -50,7 +51,6 @@ class Article:
         data = serialization_info(self)
         coll.insert_one(data)
         coll_1.insert_one(data)
-
 
     def to_dict(self):
         data = serialization_info(self)
