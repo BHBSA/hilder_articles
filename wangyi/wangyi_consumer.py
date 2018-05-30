@@ -63,7 +63,7 @@ class WangyiConsumer:
 
         while True:
             try:
-                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)],timeout=10)
                 res.encoding ='gbk'
                 con = res.text
                 break
@@ -80,7 +80,6 @@ class WangyiConsumer:
         log.info('消费一篇文章')
 
     def html_parse(self, con, bod):
-        html = etree.HTML(con)
         title = re.search('<h1>(.*?)</h1>',con).group(1)
         post_time = re.search('post_time_source">(.*?)　来源',con,re.S|re.M).group(1)
         source_detail = re.search('来源:.*?>(.*?)</',con).group(1)
