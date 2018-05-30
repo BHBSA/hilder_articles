@@ -1,4 +1,4 @@
-from article_list_page.page_url_list import page_list
+from article_list_page.page_url_config import page_list
 from lib.bloom_filter import BloomFilter
 import requests
 import re
@@ -28,6 +28,7 @@ class CrawlerArticleListUrl:
         else:
             log.info('文章不存在，文章title={}'.format(title))
             # todo 文章url, 放入消息队列
+            # todo 放入消息队列的数据类型 json {'url':'', 'source':''}
 
             # 放入消息队列成功加入布隆过滤器
             log.info('文章title已经加入布隆过滤器,title={}'.format(title))
