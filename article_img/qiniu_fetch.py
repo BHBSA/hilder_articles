@@ -5,6 +5,7 @@ import random
 from qiniu import Auth, put_file, etag
 import qiniu.config
 from  proxy_connection import Proxy_contact
+import uuid
 from lib.log import LogHandler
 
 # from qiniu.auth import digest
@@ -49,6 +50,9 @@ def qiniufetch(url,file_name):
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
     if 'http://' or 'https://' in file_name:
+        """
+            使用代理池
+        """
         # image_download = Proxy_contact(app_name='qiniufetch', method='get', url=url, headers=headers)
         # con = image_download.contact()
         # while True:
@@ -69,23 +73,13 @@ def qiniufetch(url,file_name):
             con = res.content
         except:
             return None
-        filename_1 = file_name.replace('http://','') and file_name.replace('https://','')
-        filename_1 = filename_1.replace("/",'') and filename_1.replace('?','')
-        if '.webp' in filename_1:
-            filename = filename_1.replace('.webp','.jpg')
-        elif '.png' in filename_1:
-            filename = filename_1.replace('.png','.jpg')
-        else:
-            filename = filename_1
-        if con is False:
-            return url
-        else:
-            with open('article.jpg'.format(filename), 'wb') as f:
-                f.write(con)
+        with open('article.jpg', 'wb') as f:
+            f.write(con)
     else:
         log.info('图片格式不标准')
         file_url = url
         return file_url
+    filename = uuid.uuid3(uuid.NAMESPACE_DNS, file_name)
 
     # 需要填写你的 Access Key 和 Secret Key
     access_key = 'qjku2wyeTzY-yXiQ3JuTvkT87kn4OBdrA3VnK46e'
@@ -95,7 +89,7 @@ def qiniufetch(url,file_name):
     # 要上传的空间
     bucket_name = bucket
     # 上传到七牛后保存的文件名
-    key = filename
+    key = str(filename)
     # 生成上传 Token，可以指定过期时间等
     token = q.upload_token(bucket_name, key, 3600)
     # 要上传文件的本地路径
@@ -112,5 +106,5 @@ def qiniufetch(url,file_name):
 
     log.info('上传图片{}成功'.format(filename))
     bucket_domain = 'http://p6cbf0l2n.bkt.clouddn.com'
-    file_url = bucket_domain + "/" + filename
+    file_url = bucket_domain + "/" + str(filename)
     return file_url

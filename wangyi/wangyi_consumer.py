@@ -63,7 +63,7 @@ class WangyiConsumer:
 
         while True:
             try:
-                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
+                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)],timeout=10)
                 res.encoding ='gbk'
                 con = res.text
                 break
