@@ -1,12 +1,19 @@
 from article_list_page.page_url_config import page_list
 from lib.bloom_filter import BloomFilter
-import requests
-import re
 from lib.log import LogHandler
+from lib.rabbitmq import Rabbit
+from pymongo import MongoClient
+from article import Article
+from lxml import etree
+import requests
+import json
+import re
 
+m = MongoClient(host='192.168.0.235', port=27017)
+collection = m['test']['list_config']
 log = LogHandler(__name__)
-
 bf = BloomFilter()
+r = Rabbit('192.168.0.192', 5673)
 
 
 class CrawlerArticleListUrl:
@@ -14,22 +21,16 @@ class CrawlerArticleListUrl:
         self.url_list = page_list
 
     def crawler_url(self):
-        for source_dict in self.url_list:
+        for source_dict in collection.find():
             html = requests.get(source_dict['url'])
-            self.new_article(html, source_dict['source'])
+            self.new_article(html.content.decode(html.encoding), source_dict)
 
-    @staticmethod
-    def new_article(html, source):
-        # todo 获取配置文件
-        title = re.findall('', html, re.S | re.M)
+    def new_article(self, html, source):
+        if source['analyzer_rule'] == 'xpath':
+            page = etree.HTML(html)
+            for single_article in page.xpath(source['single_article_rule']):
+                title = single_article.xpath(source['title'])
+                detail_url = single_article.xpath(source['detail_url'])
+                print('')
 
-        if bf.is_contains(title):
-            log.info('文章已经存在，文章title={}'.format(title))
-        else:
-            log.info('文章不存在，文章title={}'.format(title))
-            # todo 文章url, 放入消息队列
-            # todo 放入消息队列的数据类型 json {'url':'', 'source':''}
 
-            # 放入消息队列成功加入布隆过滤器
-            log.info('文章title已经加入布隆过滤器,title={}'.format(title))
-            bf.insert(title)
