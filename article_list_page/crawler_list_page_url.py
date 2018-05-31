@@ -7,7 +7,6 @@ from article import Article
 from lxml import etree
 import requests
 import json
-import re
 
 m = MongoClient(host='192.168.0.235', port=27017)
 collection = m['test']['list_config']
@@ -31,6 +30,4 @@ class CrawlerArticleListUrl:
             for single_article in page.xpath(source['single_article_rule']):
                 title = single_article.xpath(source['title'])
                 detail_url = single_article.xpath(source['detail_url'])
-                print('')
-
-
+                detail  =  single_article.xpath(None)
