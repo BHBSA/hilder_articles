@@ -1,6 +1,4 @@
-from lib.rabbitmq import Rabbit
 import requests
-import re
 from pymongo import MongoClient
 from lxml import etree
 
