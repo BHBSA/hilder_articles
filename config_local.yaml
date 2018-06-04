@@ -6,6 +6,12 @@ mongo:
     coll_comm : news_library
     url_code : article_id
     comments : comments
+    test_host: 192.168.0.235
+    test_db : test
+    coll_detail : detail_config
+    coll_list : list_config
+    clean : clean
+
 rabbitmq_host : 192.168.0.192
 rabbitmq_port : 5673
 redies_host : 192.168.0.235
