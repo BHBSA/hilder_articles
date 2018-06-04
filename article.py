@@ -47,10 +47,8 @@ class Article:
         mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'])
         client = mongo.connect
         coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
-        coll_1 = client[setting['mongo']['db_name']]['news_library_1']
         data = serialization_info(self)
         coll.insert_one(data)
-        coll_1.insert_one(data)
 
     def to_dict(self):
         data = serialization_info(self)

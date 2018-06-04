@@ -24,7 +24,7 @@ redis_db : 0
 #    host: 222.73.196.143
 #    port: 27017
 #    db_name : fangjia_youfang
-#    coll_comm : news_library
+#    coll_comm : news_library_1
 #    url_code : article_id
 #    comments : comments
 #rabbitmq_host : 192.168.0.191
