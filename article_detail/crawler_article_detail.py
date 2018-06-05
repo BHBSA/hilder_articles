@@ -12,8 +12,8 @@ import re
 
 setting = yaml.load(open('config_local.yaml'))
 log = LogHandler('article_consumer')
-m = MongoClient(setting['mongo']['test_host'], setting['mongo']['port'])
-collection = m[setting['mongo']['test_db']][setting['mongo']['coll_detail']]
+m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'])
+collection = m[setting['mongo_235']['config_db']][setting['mongo_235']['coll_detail']]
 
 rabbit = Rabbit(setting['rabbitmq_host'],setting['rabbitmq_port'])
 connection = rabbit.get_connection()
@@ -32,28 +32,29 @@ class CrawlerDetail:
         channel.start_consuming()
 
     def clean(self,message):        #作者,发表时间,详细来源字段清洗
-        clean_coll = m[setting['mongo']['test_db']][setting['mongo']['clean']]
+        clean_coll = m[setting['mongo_235']['config_db']][setting['mongo_235']['clean']]
         clean = clean_coll.find_one({'source': message['source']})
         if clean['post_time'] is not None:
             try:
                 post_time = re.search(clean['post_time'],message['post_time']).group(1)
                 message['post_time'] = post_time
             except:
-                log.error("正则匹配失败{}".format(message['post_time']))
+                log.error("发表时间正则匹配失败{}".format(message['post_time']))
                 message['post_time'] = None
         if clean['author'] is not None:
             try:
                 author = re.search(clean['author'],message['author']).group(1)
                 message['author'] = author
             except:
-                log.error("正则匹配失败{}".format(message['author']))
+                log.error("作者正则匹配失败{}".format(message['author']))
                 message['author'] = None
+
         if clean['source_detail'] is not None:
             try:
                 source_detail = re.search(clean['source_detail'],message['source_detail']).group(1)
                 message['source_detail'] = source_detail
             except:
-                # log.error("正则匹配失败{}".format(message['source_detail']))
+                log.error("详细来源正则匹配失败{}".format(message['source_detail']))
                 message['source_detail'] = None
 
         return message
@@ -87,8 +88,14 @@ class CrawlerDetail:
         detail_config_dict = collection.find_one({'source': message['source']})
         try:
             if detail_config_dict['body'] is not None:
-                article_text = page.xpath(detail_config_dict['body'])[0]
-                message['body'] = etree.tounicode(article_text)
+                try:
+                    for pattern in detail_config_dict['body']:
+                        if page.xpath(pattern):
+                            article_text = page.xpath(pattern)[0]
+                            message['body'] = etree.tounicode(article_text)
+                            break
+                except:
+                    log.error('xpath语句未能解析body')
             if detail_config_dict['comment_count'] is not None:
                 message['comment_count'] = page.xpath(detail_config_dict['comment_count'])[0]
             if detail_config_dict['like_count'] is not None:

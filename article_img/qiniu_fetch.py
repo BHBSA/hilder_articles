@@ -49,7 +49,7 @@ def qiniufetch(url,file_name):
     headers={"user_agent":
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36"
     }
-    if 'http://' or 'https://' in file_name:
+    if 'http://' or 'https://' in url:
         """
             使用代理池
         """
@@ -72,13 +72,20 @@ def qiniufetch(url,file_name):
             res = requests.get(url, headers=headers,timeout=10)
             con = res.content
         except:
-            return None
+            return False
         with open('article.jpg', 'wb') as f:
             f.write(con)
     else:
-        log.info('图片格式不标准')
-        file_url = url
-        return file_url
+        try:
+            img_url = 'http:'+url
+            res = requests.get(img_url, headers=headers, timeout=10)
+            con = res.content
+            with open('article.jpg', 'wb') as f:
+                f.write(con)
+        except:
+            log.info('图片格式不标准')
+            return False
+
     filename = uuid.uuid3(uuid.NAMESPACE_DNS, file_name)
 
     # 需要填写你的 Access Key 和 Secret Key

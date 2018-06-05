@@ -9,4 +9,4 @@ if __name__ == '__main__':
     clean_consume = CleanUp()
     Process(target=produce.crawler_url).start()
     Process(target=detail_consume.start_consume).start()
-    Process(target=clean_consume.reborn).start()
+    Process(target=clean_consume.start_consume).start()

@@ -1,8 +1,9 @@
 from lib.mongo import Mongo
 import yaml
-
+from lib.log import LogHandler
+import datetime
 setting = yaml.load(open('config_local.yaml'))
-
+log = LogHandler("article_insert")
 
 def serialization_info(info):
     """
@@ -48,7 +49,11 @@ class Article:
         client = mongo.connect
         coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
         data = serialization_info(self)
-        coll.insert_one(data)
+        data["crawler_time"] = datetime.datetime.n
+        if '图片替换失败！' in data['body']:
+            log.error('{}图片替换失败'.format(data['source']))
+        else:
+            coll.insert_one(data)
 
     def to_dict(self):
         data = serialization_info(self)

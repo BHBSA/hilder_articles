@@ -15,8 +15,8 @@ from itertools import cycle
 
 setting = yaml.load(open('config_local.yaml'))
 
-m = MongoClient(setting['mongo']['test_host'], setting['mongo']['port'])
-collection = m[setting['mongo']['test_db']][setting['mongo']['coll_list']]
+m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'])
+collection = m[setting['mongo_235']['config_db']][setting['mongo_235']['coll_list']]
 
 bf = BloomFilter(host=setting['redies_host'],
                 port=setting['redis_port'],
@@ -42,7 +42,7 @@ class CrawlerArticleListUrl:
 
 
     def crawler_url(self):
-        all_dict = collection.find()
+        all_dict = collection.find({})
         for source_dict in cycle(all_dict):
             for info in source_dict['url']:
                 url = info[1]
@@ -56,7 +56,7 @@ class CrawlerArticleListUrl:
                             log.error("{}列表页访问失败".format(url))
                     except Exception as e:
                         log.error(e)
-                self.new_article(html.content.decode(html.encoding), source_dict, city)
+                self.new_article(html.content.decode(source_dict['decode']), source_dict, city)
 
     @staticmethod
     def new_article(html, source, city):
@@ -80,7 +80,11 @@ class CrawlerArticleListUrl:
                     if source['read_num'] is not None:
                         article.read_num = single_article.xpath(source['read_num'])[0].strip()
                     if source['post_time'] is not None:
-                        article.post_time = single_article.xpath(source['post_time'])[0].strip()
+                        try:
+                            article.post_time = single_article.xpath(source['post_time'])[0].strip()
+                        except:
+                            log.error('post_time解析失败')
+                            article.post_time =  None
 
                     article_dict = article.to_dict()
                     article_dict['detail_url'] = single_article.xpath(source['detail_url'])[0]

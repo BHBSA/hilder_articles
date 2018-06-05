@@ -33,8 +33,8 @@ class ImageReplace:
 
         image_new_url = qiniufetch(file_name, file_name)
         rep = 'src="' + image_new_url + '"'
-        if image_new_url is None:
-            rep = 'src="' + file_name + '"'
+        if image_new_url is False:
+            rep = '图片替换失败！'
         return rep
 
 
