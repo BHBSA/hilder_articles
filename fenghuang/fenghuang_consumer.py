@@ -2,15 +2,13 @@ import yaml
 import requests
 from article import Article
 import json
-from lxml import etree
 import datetime
 import re
 from  article_img.image_replace import ImageReplace
-from proxy_connection import Proxy_contact
 import random
-import time
 import pika
 from lib.log import LogHandler
+from lib.proxy_iterator import Proxy
 
 log = LogHandler("fenghuang")
 setting = yaml.load(open('config_local.yaml'))
@@ -19,16 +17,8 @@ headers = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119Safari/537.36",
 }
 
-proxies = [{"http": "http://192.168.0.96:3234"},
-           {"http": "http://192.168.0.93:3234"},
-           {"http": "http://192.168.0.90:3234"},
-           {"http": "http://192.168.0.94:3234"},
-           {"http": "http://192.168.0.98:3234"},
-           {"http": "http://192.168.0.99:3234"},
-           {"http": "http://192.168.0.100:3234"},
-           {"http": "http://192.168.0.101:3234"},
-           {"http": "http://192.168.0.102:3234"},
-           {"http": "http://192.168.0.103:3234"}, ]
+proxy = Proxy()
+
 
 class Consumer:
     def consume_connect(self):
@@ -57,14 +47,17 @@ class Consumer:
         article = Article(bod['source'])
         article.dict_to_attr(bod)
         url = article.url
-
-        while True:
+        for i in range(10):
             try:
-                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)])
-                con = res.content.decode()
-                break
+                html = requests.get(url,proxies=next(proxy),timeout=10,headers=headers)
+                if html.status_code == 200:
+                    con = html.content.decode()
+                    break
+                elif i == 10 and html.status_code != 200:
+                    log.error("请求文章详情页{}失败".format(url))
+                    ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
-                log.error('网络请求错误{}'.format(url))
+                log.error(e)
         try:
             article_ready = self.html_parse(con, bod)
         except Exception as e:
