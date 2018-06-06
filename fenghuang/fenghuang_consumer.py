@@ -61,12 +61,12 @@ class Consumer:
         try:
             article_ready = self.html_parse(con, bod)
         except Exception as e:
-            log.error(e)
+            log.error('{}解析失败'.format(url))
             ch.basic_ack(delivery_tag=method.delivery_tag)
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
-        log.info('消费一篇文章')
+        log.info('{}消费一篇文章'.format(bod['source']))
 
     def html_parse(self,con,bod):
         title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
@@ -83,5 +83,5 @@ class Consumer:
         article.post_time = post_time
         article.source_detail = source_detail
         article.body = readable_article
-        article.crawler_time = datetime.datetime.now()
+        # article.crawler_time = datetime.datetime.now()
         return article
