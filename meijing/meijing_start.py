@@ -112,6 +112,7 @@ class Meijing(object):
                         article.url = link
                         article.crawler_time = datetime.datetime.now()
                         article.insert_db()
+                        log.info("{}文章入库".format("每经"))
 
             morelink = soup.select('#more')[0].get('href')
             return morelink

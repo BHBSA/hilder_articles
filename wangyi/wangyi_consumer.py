@@ -77,7 +77,7 @@ class WangyiConsumer:
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
-        log.info('消费一篇文章')
+        log.info('{}消费一篇文章'.format('网易新闻'))
 
     def html_parse(self, con, bod):
         html = etree.HTML(con)
