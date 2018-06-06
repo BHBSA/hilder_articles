@@ -1,19 +1,15 @@
 import yaml
 import pika
 import requests
-from readability.readability import Document
 from article import Article
 import json
 from lxml import etree
 import datetime
 import re
 from  article_img.image_replace import ImageReplace
-from proxy_connection import Proxy_contact
-from multiprocessing import Process
-from gevent import monkey
-import gevent
 import random
 from lib.log import LogHandler
+from lib.proxy_iterator import Proxy
 
 log = LogHandler("wangyi")
 setting = yaml.load(open('config_local.yaml'))
@@ -21,17 +17,7 @@ setting = yaml.load(open('config_local.yaml'))
 headers = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119Safari/537.36",
 }
-
-proxies = [{"http": "http://192.168.0.96:3234"},
-           {"http": "http://192.168.0.93:3234"},
-           {"http": "http://192.168.0.90:3234"},
-           {"http": "http://192.168.0.94:3234"},
-           {"http": "http://192.168.0.98:3234"},
-           {"http": "http://192.168.0.99:3234"},
-           {"http": "http://192.168.0.100:3234"},
-           {"http": "http://192.168.0.101:3234"},
-           {"http": "http://192.168.0.102:3234"},
-           {"http": "http://192.168.0.103:3234"}, ]
+proxy = Proxy()
 
 class WangyiConsumer:
 
@@ -61,14 +47,18 @@ class WangyiConsumer:
         article.dict_to_attr(bod)
         url = article.url
 
-        while True:
+        for i in range(10):
             try:
-                res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)],timeout=10)
-                res.encoding ='gbk'
+                res = requests.get(url, proxies=next(proxy), timeout=10)  # 代理
+                res.encoding = 'gbk'
                 con = res.text
-                break
+                if res.status_code == 200:
+                    break
+                elif i == 10 and res.status_code != 200:
+                    log.error("{}列表页访问失败".format(url))
             except Exception as e:
                 log.error('网络请求错误')
+
         try:
             article_ready = self.html_parse(con, bod)
         except Exception as e:

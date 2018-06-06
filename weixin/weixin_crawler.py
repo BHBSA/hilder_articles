@@ -102,7 +102,7 @@ def article_parse(article_url,source_detail):
     article.post_time = post_time
     article.crawler_time = datetime.datetime.now()
     article.insert_db()
-    log.info("文章已入库")
+    log.info("{}文章已入库".format('微信'))
 
 
 if __name__ == '__main__':

@@ -105,7 +105,7 @@ class Toutiao_Consumer:
         self.channel = connect.channel()
         self.channel.basic_qos(prefetch_count=1)
         self.channel.basic_consume(self.callback,
-                              queue='article_test',
+                              queue='toutiao',
                               no_ack=False)
 
     def start_consume(self):

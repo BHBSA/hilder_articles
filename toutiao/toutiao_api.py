@@ -42,7 +42,7 @@ class Toutiao:
     def start_crawler(self):
 
         channel = self.rabbit.get_channel()
-        channel.queue_declare(queue='article_test')
+        channel.queue_declare(queue='toutiao')
         while True:
             try:
                 self.url_list_crawler(channel)
@@ -103,7 +103,7 @@ class Toutiao:
 
                     channel.basic_publish(
                         exchange='',
-                        routing_key='article_test',
+                        routing_key='toutiao',
                         body=json.dumps(article.to_dict())
                     )
                     log.info('已经放入队列')
