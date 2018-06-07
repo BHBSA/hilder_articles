@@ -16,20 +16,30 @@ m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'
 collection = m[setting['mongo_235']['config_db']][setting['mongo_235']['coll_detail']]
 
 rabbit = Rabbit(setting['rabbitmq_host'],setting['rabbitmq_port'])
-connection = rabbit.get_connection()
+
 
 class CrawlerDetail:
     def __init__(self):
         self.proxy = Proxy()
 
-    def start_consume(self):
-        channel = connection.channel()
-        channel.queue_declare(queue='usual_article', durable=True)
-        channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(self.consume_article_detail_url,
+    def connect(self):
+        self.connection = rabbit.connection
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='usual_article', durable=True)
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume(self.consume_article_detail_url,
                               queue='usual_article',
                               no_ack=False)
-        channel.start_consuming()
+
+    def start_consume(self):
+        disconnected = True
+        while disconnected:
+            try:
+                disconnected = False
+                self.channel.start_consuming()
+            except Exception as e:
+                disconnected = True
+                self.connect()
 
     def clean(self,message):        #作者,发表时间,详细来源字段清洗
         clean_coll = m[setting['mongo_235']['config_db']][setting['mongo_235']['clean']]
@@ -76,12 +86,14 @@ class CrawlerDetail:
                 html = requests.get(message['detail_url'],proxies=next(self.proxy),timeout=10)
                 if html.status_code == 200:
                     break
-                elif i == 10 and html.status_code != 200:
+            except Exception as e:
+                if i == 10:
                     log.error("请求文章详情页{}失败".format(message['detail_url']))
                     ch.basic_ack(delivery_tag=method.delivery_tag)
-            except Exception as e:
-                log.error(e)
-        con = html.content.decode(html.encoding)
+        try:
+            con = html.content.decode()
+        except:
+            con = html.content.decode('gbk')
         page = etree.HTML(con)
 
         # 获取详情页的解析方式
@@ -116,7 +128,7 @@ class CrawlerDetail:
         self.clean(message)
 
         # 放入消息队列做正文替换清洗
-        produce_channel = connection.channel()
+        produce_channel = self.connection.channel()
         produce_channel.exchange_declare('article', 'direct', durable=True)
         produce_channel.queue_declare('article_body', durable=True)
         produce_channel.queue_bind(exchange='article',
