@@ -139,5 +139,5 @@ class CrawlerDetail:
                               routing_key='body',
                               body=article_text,
                               properties=pika.BasicProperties(delivery_mode=2))
-        log.info('已经放入队列')
+        log.info('已经放入清洗队列')
         ch.basic_ack(delivery_tag=method.delivery_tag)

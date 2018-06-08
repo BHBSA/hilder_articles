@@ -13,7 +13,6 @@ import re
 from itertools import cycle
 from article_img.qiniu_fetch import qiniufetch
 
-
 setting = yaml.load(open('config_local.yaml'))
 
 m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'])
@@ -31,6 +30,7 @@ class CrawlerArticleListUrl:
     def __init__(self):
         self.url_list = page_list
         self.proxy = Proxy()
+        self.mes = []
 
     def produce_connect(self):
         connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbitmq_host'],
@@ -45,30 +45,33 @@ class CrawlerArticleListUrl:
     def crawler_url(self):
         all_dict = collection.find({})
         for source_dict in cycle(all_dict):
-            if source_dict['method'] == 'get':
+            if source_dict['method'] == 'get':   # get请求
                 for info in source_dict['url']:
                     url = info[1]
                     city = info[0]
                     for i in range(10):
                         try:
                             html = requests.get(url,proxies=next(self.proxy),timeout=10)   #代理
+                            con = html.content.decode(source_dict['decode'])
                             if html.status_code == 200:
+                                self.new_article(con, source_dict, city=city)
                                 break
                         except Exception as e:
-                                log.error("{}列表页访问失败".format(url))
-                    self.new_article(html.content.decode(source_dict['decode']), source_dict, city=city)
+                                log.error("{}列表页访问失败{}".format(url,e))
+                    while len(self.mes)>0:
+                        self.rabbit()
 
-            if source_dict['method'] == 'post':
+            if source_dict['method'] == 'post':     # post请求
                 url = source_dict['url']
                 for data in source_dict['formdata']:   #formdata需要构造
                     for i in range(10):
                         try:
                             html = requests.get(url,data=data,proxies=next(self.proxy),timeout=10)   #代理
                             if html.status_code == 200:
+                                self.new_article(html.content.decode(source_dict['decode']), source_dict, )
                                 break
                         except Exception as e:
                             log.error(e)
-                    self.new_article(html.content.decode(source_dict['decode']), source_dict,)
 
     def new_article(self,html, source, city=None):
         if source['analyzer_rule'] == 'xpath':
@@ -108,7 +111,7 @@ class CrawlerArticleListUrl:
 
                     article_dict = article.to_dict()
                     article_dict['detail_url'] = single_article.xpath(source['detail_url'])[0]
-                    self.rabbit(article_dict)
+                    self.mes.append(article_dict)
 
         elif source['analyzer_rule'] == 'regex':
             for single_article in re.findall(source['single_article_rule'],html,re.S|re.M):
@@ -134,12 +137,14 @@ class CrawlerArticleListUrl:
                         article.title_img = qiniufetch(title_img, title_img)
                     article_dict = article.to_dict()
                     article_dict['detail_url'] = re.search(source['detail_url'],single_article).group(1)
-                    self.rabbit(article_dict)
+                    self.mes.append(article_dict)
 
 
 
-    def rabbit(self,article_dict):
+    def rabbit(self):
         # 放入rabbitmq
+        article_dict = self.mes.pop()
+        self.produce_connect()
         disconnected = True
         while disconnected:
             try:
@@ -150,9 +155,20 @@ class CrawlerArticleListUrl:
                                            routing_key='usual',
                                            body=message,
                                            properties=pika.BasicProperties(delivery_mode=2))
-                log.info('已经放入队列')
-
+                log.info('已经放入usual队列')
             except Exception as e:
                 disconnected = True
                 self.produce_connect()
 
+    def http_request(self,info,source_dict):
+        url = info[1]
+        city = info[0]
+        for i in range(10):
+            try:
+                html = requests.get(url, proxies=next(self.proxy), timeout=10)  # 代理
+                con = html.content.decode(source_dict['decode'])
+                if html.status_code == 200:
+                    self.new_article(con, source_dict, city=city)
+                    break
+            except Exception as e:
+                log.error("{}列表页访问失败{}".format(url, e))
