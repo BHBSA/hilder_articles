@@ -23,16 +23,16 @@ headers = {
 }
 
 
-proxies = [{"http": "http://192.168.0.96:3234"},
-           {"http": "http://192.168.0.93:3234"},
-           {"http": "http://192.168.0.90:3234"},
-           {"http": "http://192.168.0.94:3234"},
-           {"http": "http://192.168.0.98:3234"},
-           {"http": "http://192.168.0.99:3234"},
-           {"http": "http://192.168.0.100:3234"},
-           {"http": "http://192.168.0.101:3234"},
-           {"http": "http://192.168.0.102:3234"},
-           {"http": "http://192.168.0.103:3234"}, ]
+proxies = [{"http": "http://192.168.0.96:4234"},
+           {"http": "http://192.168.0.93:4234"},
+           {"http": "http://192.168.0.90:4234"},
+           {"http": "http://192.168.0.94:4234"},
+           {"http": "http://192.168.0.98:4234"},
+           {"http": "http://192.168.0.99:4234"},
+           {"http": "http://192.168.0.100:4234"},
+           {"http": "http://192.168.0.101:4234"},
+           {"http": "http://192.168.0.102:4234"},
+           {"http": "http://192.168.0.103:4234"}, ]
 
 
 class Toutiao_Consumer:
@@ -82,7 +82,8 @@ class Toutiao_Consumer:
         while True:
             try:
                 res = requests.get(url=url, headers=headers, proxies=proxies[random.randint(0, 9)], timeout=10)
-                if '<html><head></head><body></body></html>' != res.content.decode():
+                res.encoding = 'utf-8'
+                if '<html><head></head><body></body></html>' not in  res.text:
                     break
             except Exception as e:
                 log.error('网络请求错误{}'.format(e))
@@ -96,15 +97,28 @@ class Toutiao_Consumer:
             log.info("文章为空")
         else:
             article.insert_db()
-            log.info('一篇文张入库成功')
+            log.info('{}一篇文张入库成功'.format('今日头条'))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def start_consume(self):
-        channel = self.rabbit.get_channel()
-        channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(self.callback,
-                              queue='article_test',
+    def consume_connect(self):
+        connect = self.rabbit.get_connection()
+        self.channel = connect.channel()
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume(self.callback,
+                              queue='toutiao',
                               no_ack=False)
-        channel.start_consuming()
+
+    def start_consume(self):
+        disconnected = True
+        while disconnected:
+            try:
+                disconnected = False
+                self.channel.start_consuming()
+            except Exception as e:
+                disconnected = True
+                self.consume_connect()
 
 
+if __name__ == '__main__':
+    toutiao = Toutiao_Consumer()
+    toutiao.start_consume()

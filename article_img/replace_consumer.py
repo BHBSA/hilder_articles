@@ -15,7 +15,7 @@ rabbit = Rabbit(setting['rabbitmq_host'], setting['rabbitmq_port'])
 class CleanUp:
 
     def reborn(self):
-        connection = rabbit.get_connection()
+        connection = rabbit.connection
         self.channel = connection.channel()
         self.channel.queue_declare(queue='article_body', durable=True)
         self.channel.basic_qos(prefetch_count=1)

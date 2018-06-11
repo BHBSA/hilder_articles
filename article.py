@@ -49,7 +49,7 @@ class Article:
         client = mongo.connect
         coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
         data = serialization_info(self)
-        data["crawler_time"] = datetime.datetime.n
+        data["crawler_time"] = datetime.datetime.now()
         if '图片替换失败！' in data['body']:
             log.error('{}图片替换失败'.format(data['source']))
         else:

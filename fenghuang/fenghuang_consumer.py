@@ -66,7 +66,7 @@ class Consumer:
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)
         article_ready.insert_db()
-        log.info('{}消费一篇文章'.format(bod['source']))
+        log.info('{}消费一篇文章'.format('凤凰'))
 
     def html_parse(self,con,bod):
         title = re.search('<div class="title">.*?<h2>(.*?)</h2',con,re.S|re.M).group(1)
