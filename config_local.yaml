@@ -7,17 +7,17 @@ mongo:
     url_code : article_id
     comments : comments
 mongo_235:
-    config_host: 192.168.0.235
+    config_host: 114.80.150.196
     port: 27017
     config_db : test
     coll_detail : detail_config
     coll_list : list_config
     clean : clean
 
-rabbitmq_host : 192.168.0.192
+rabbitmq_host : 114.80.150.196
 rabbitmq_port : 5673
-redies_host : 192.168.0.235
-redis_port : 6699
+redies_host : 114.80.150.196
+redis_port : 6379
 redis_db : 0
 
 #
