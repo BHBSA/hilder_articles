@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from fangtianxia.city import get_All_City
-from fangtianxia.articletwo import getarticle2
-from fangtianxia.articleone import getarticle1
+from backup.fangtianxia.city import get_All_City
+from backup.fangtianxia.articletwo import getarticle2
+from backup.fangtianxia.articleone import getarticle1
 from lib.bloom_filter import BloomFilter
 from article import Article
 from article_img.qiniu_fetch import qiniufetch
