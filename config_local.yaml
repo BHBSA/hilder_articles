@@ -29,6 +29,13 @@ redis_db : 0
 #    coll_comm : news_library_1
 #    url_code : article_id
 #    comments : comments
+#mongo_235:
+#    config_host: 114.80.150.196
+#    port: 27017
+#    config_db : test
+#    coll_detail : detail_config
+#    coll_list : list_config
+#    clean : clean
 #rabbitmq_host : localhost
 #rabbitmq_port : 5673
 #redies_host : localhost
