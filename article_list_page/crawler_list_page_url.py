@@ -108,6 +108,11 @@ class CrawlerArticleListUrl:
                         except:
                             log.error('post_time解析失败')
                             article.post_time =  None
+                    if source['desc'] is not None:
+                        try:
+                            article.desc = single_article.xpath(source['desc'])[0].strip()
+                        except:
+                            log.info('无文章简介{}'.format(article.title))
 
                     article_dict = article.to_dict()
                     article_dict['detail_url'] = single_article.xpath(source['detail_url'])[0]
