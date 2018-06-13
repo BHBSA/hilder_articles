@@ -2,8 +2,14 @@ from lib.mongo import Mongo
 import yaml
 from lib.log import LogHandler
 import datetime
+
 setting = yaml.load(open('config_local.yaml'))
 log = LogHandler("article_insert")
+
+mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'])
+client = mongo.connect
+coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
+
 
 def serialization_info(info):
     """
@@ -45,9 +51,6 @@ class Article:
         self.desc = desc  # 简介
 
     def insert_db(self):
-        mongo = Mongo(setting['mongo']['host'], setting['mongo']['port'])
-        client = mongo.connect
-        coll = client[setting['mongo']['db_name']][setting['mongo']['coll_comm']]
         data = serialization_info(self)
         data["crawler_time"] = datetime.datetime.now()
         if '图片替换失败！' in data['body']:
