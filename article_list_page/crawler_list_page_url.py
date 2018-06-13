@@ -2,7 +2,7 @@ from article_list_page.page_url_config import page_list
 from lib.bloom_filter import BloomFilter
 from lib.log import LogHandler
 from pymongo import MongoClient
-from lib.proxy_iterator import Proxy
+# from lib.proxy_iterator import Proxy
 from article import Article
 from lxml import etree
 import requests
@@ -29,7 +29,6 @@ log = LogHandler('article_list_page')
 class CrawlerArticleListUrl:
     def __init__(self):
         self.url_list = page_list
-        self.proxy = Proxy()
         self.mes = []
 
     def produce_connect(self):
@@ -51,7 +50,7 @@ class CrawlerArticleListUrl:
                     city = info[0]
                     for i in range(10):
                         try:
-                            html = requests.get(url,proxies=next(self.proxy),timeout=10)   #代理
+                            html = requests.get(url,timeout=10)   #代理
                             con = html.content.decode(source_dict['decode'])
                             if html.status_code == 200:
                                 self.new_article(con, source_dict, city=city)
@@ -66,7 +65,7 @@ class CrawlerArticleListUrl:
                 for data in source_dict['formdata']:   #formdata需要构造
                     for i in range(10):
                         try:
-                            html = requests.get(url,data=data,proxies=next(self.proxy),timeout=10)   #代理
+                            html = requests.get(url,data=data,timeout=10)   #代理
                             if html.status_code == 200:
                                 self.new_article(html.content.decode(source_dict['decode']), source_dict, )
                                 break
@@ -170,7 +169,7 @@ class CrawlerArticleListUrl:
         city = info[0]
         for i in range(10):
             try:
-                html = requests.get(url, proxies=next(self.proxy), timeout=10)  # 代理
+                html = requests.get(url,timeout=10)  # 代理
                 con = html.content.decode(source_dict['decode'])
                 if html.status_code == 200:
                     self.new_article(con, source_dict, city=city)

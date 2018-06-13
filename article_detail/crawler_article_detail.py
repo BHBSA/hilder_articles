@@ -3,7 +3,6 @@ from lxml import etree
 from pymongo import MongoClient
 from lib.rabbitmq import Rabbit
 from lib.log import LogHandler
-from lib.proxy_iterator import Proxy
 import yaml
 import json
 import pika
@@ -19,8 +18,8 @@ rabbit = Rabbit(setting['rabbitmq_host'],setting['rabbitmq_port'])
 
 
 class CrawlerDetail:
-    def __init__(self):
-        self.proxy = Proxy()
+    # def __init__(self):
+        # self.proxy = Proxy()
 
     def connect(self):
         self.connection = rabbit.connection
@@ -83,7 +82,7 @@ class CrawlerDetail:
         message = json.loads(body.decode())
         for i in range(10):
             try:
-                html = requests.get(message['detail_url'],proxies=next(self.proxy),timeout=10)
+                html = requests.get(message['detail_url'],timeout=10)
                 self.connection.process_data_events()
                 if html.status_code == 200:
                     break
