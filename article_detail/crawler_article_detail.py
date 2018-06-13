@@ -84,6 +84,7 @@ class CrawlerDetail:
         for i in range(10):
             try:
                 html = requests.get(message['detail_url'],proxies=next(self.proxy),timeout=10)
+                self.connection.process_data_events()
                 if html.status_code == 200:
                     break
             except Exception as e:
