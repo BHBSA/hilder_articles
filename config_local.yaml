@@ -14,9 +14,9 @@ mongo_235:
     coll_list : list_config
     clean : clean
 
-rabbitmq_host : 114.80.150.196
+rabbitmq_host : localhost
 rabbitmq_port : 5673
-redies_host : 114.80.150.196
+redies_host : localhost
 redis_port : 6379
 redis_db : 0
 

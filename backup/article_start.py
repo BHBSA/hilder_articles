@@ -1,5 +1,5 @@
-from article_consumer import consumer_run
-from article_producer import producer_run
+from backup.article_consumer import consumer_run
+from backup.article_producer import producer_run
 from multiprocessing import Process
 if __name__ == '__main__':
     # 忽略此句
