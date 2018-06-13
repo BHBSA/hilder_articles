@@ -24,7 +24,7 @@ bf = BloomFilter(host=setting['redies_host'],
                 blockNum=1,
                 db=0, )
 
-log = LogHandler(__name__)
+log = LogHandler('article_list_page')
 
 class CrawlerArticleListUrl:
     def __init__(self):
