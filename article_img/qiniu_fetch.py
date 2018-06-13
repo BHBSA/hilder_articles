@@ -1,10 +1,5 @@
-from qiniu import Auth,BucketManager
-from base64 import urlsafe_b64encode as b64e
 import requests
-import random
 from qiniu import Auth, put_file, etag
-import qiniu.config
-from  proxy_connection import Proxy_contact
 import uuid
 from lib.log import LogHandler
 
