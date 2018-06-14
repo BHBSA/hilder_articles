@@ -32,13 +32,10 @@ class CleanUp:
 
         channel.start_consuming()
 
-    def image_check(self, image_url_list, message, method, ch, article, pattern):
+    def image_check(self, image_url_list, message, method, ch, article, pattern): # 图片替换检查
         if len(image_url_list) == 0:
             detail_url = message.pop('detail_url')
-            news = Article(message['source'])  # 删除消息中detail_url字段
-            news.dict_to_attr(message)
-            news.insert_db()
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            self.news_confirm(ch,message,method)
             log.info('{}无图片可更换！'.format(detail_url))
         else:
             detail_url = message.pop('detail_url')
@@ -49,11 +46,14 @@ class CleanUp:
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 return
             message['body'] = new_body
-            news = Article(message['source'])
-            news.dict_to_attr(message)
-            news.insert_db()
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            self.news_confirm(ch, message, method)
             log.info('{}已入库'.format(detail_url))
+
+    def news_confirm(self,ch,message,method): # 入库确认
+        news = Article(message['source'])
+        news.dict_to_attr(message)
+        news.insert_db()
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def image_download(self, ch, method, properties, body):
         message = json.loads(body.decode())
