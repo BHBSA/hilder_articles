@@ -34,9 +34,10 @@ class CleanUp:
 
     def image_check(self, image_url_list, message, method, ch, article, pattern): # 图片替换检查
         if len(image_url_list) == 0:
-            detail_url = message.pop('detail_url')
             self.news_insert(message)
+            detail_url = message.pop('detail_url')
             log.info('{}无图片可更换！'.format(detail_url))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
             detail_url = message.pop('detail_url')
             try:
@@ -47,6 +48,7 @@ class CleanUp:
                 return
             message['body'] = new_body
             self.news_insert(message)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             log.info('{}已入库'.format(detail_url))
 
     @staticmethod
