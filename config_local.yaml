@@ -23,7 +23,7 @@ redis_db : 0
 #
 ## 正式
 #mongo:
-#    host: 222.73.196.143
+#    host: 192.168.0.43
 #    port: 27017
 #    db_name : fangjia_youfang
 #    coll_comm : news_library_1
