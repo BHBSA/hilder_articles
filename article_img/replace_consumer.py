@@ -10,28 +10,20 @@ setting = yaml.load(open('config_local.yaml'))
 log = LogHandler("img_replace")
 
 rabbit = Rabbit(setting['rabbitmq_host'], setting['rabbitmq_port'])
-
+connection = rabbit.connection
 
 class CleanUp:
 
-    def reborn(self):
-        connection = rabbit.connection
-        self.channel = connection.channel()
-        self.channel.queue_declare(queue='article_body', durable=True)
-        self.channel.basic_qos(prefetch_count=1)
-        self.channel.basic_consume(self.image_download,
-                              queue='article_body',
-                              no_ack=False)
-
     def start_consume(self):
-        disconnected = True
-        while disconnected:
-            try:
-                disconnected = False
-                self.channel.start_consuming()
-            except Exception as e:
-                disconnected = True
-                self.reborn()
+        channel = connection.channel()
+        channel.queue_declare(queue='article_body')
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(self.image_download,
+                                   queue='article_body',
+                                   no_ack=False)
+
+        channel.start_consuming()
+
 
     def image_download(self,ch, method, properties, body):
         message = json.loads(body.decode())
@@ -80,10 +72,13 @@ class CleanUp:
     @staticmethod
     def replace(matchobj):
         image_url = matchobj.group(1)
+        connection.process_data_events()
         image_new_url = qiniufetch(image_url, image_url)
-        rep = 'src="' + image_new_url + '"'
+        connection.process_data_events()
         if image_new_url is False:
             rep = '图片替换失败！'
+        else:
+            rep = 'src="' + image_new_url + '"'
         return rep
 
 

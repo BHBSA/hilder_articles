@@ -7,6 +7,7 @@ import yaml
 import json
 import pika
 import re
+import time
 
 
 setting = yaml.load(open('config_local.yaml'))
@@ -15,30 +16,19 @@ m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'
 collection = m[setting['mongo_235']['config_db']][setting['mongo_235']['coll_detail']]
 
 rabbit = Rabbit(setting['rabbitmq_host'],setting['rabbitmq_port'])
+connection = rabbit.connection
 
 
 class CrawlerDetail:
-    # def __init__(self):
-        # self.proxy = Proxy()
-
-    def connect(self):
-        self.connection = rabbit.connection
-        self.channel = self.connection.channel()
-        self.channel.queue_declare(queue='usual_article', durable=True)
-        self.channel.basic_qos(prefetch_count=1)
-        self.channel.basic_consume(self.consume_article_detail_url,
-                              queue='usual_article',
-                              no_ack=False)
 
     def start_consume(self):
-        disconnected = True
-        while disconnected:
-            try:
-                disconnected = False
-                self.channel.start_consuming()
-            except Exception as e:
-                disconnected = True
-                self.connect()
+        channel = connection.channel()
+        channel.queue_declare(queue='usual_article')
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(self.consume_article_detail_url,
+                                   queue='usual_article',
+                                   no_ack=False)
+        channel.start_consuming()
 
     def clean(self,message):        #作者,发表时间,详细来源字段清洗
         clean_coll = m[setting['mongo_235']['config_db']][setting['mongo_235']['clean']]
@@ -83,10 +73,11 @@ class CrawlerDetail:
         for i in range(10):
             try:
                 html = requests.get(message['detail_url'],timeout=10)
-                self.connection.process_data_events()
+                connection.process_data_events()
                 if html.status_code == 200:
                     break
             except Exception as e:
+                connection.process_data_events()
                 if i == 10:
                     log.error("请求文章详情页{}失败".format(message['detail_url']))
                     ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -128,16 +119,11 @@ class CrawlerDetail:
         self.clean(message)
 
         # 放入消息队列做正文替换清洗
-        produce_channel = self.connection.channel()
-        produce_channel.exchange_declare('article', 'direct', durable=True)
-        produce_channel.queue_declare('article_body', durable=True)
-        produce_channel.queue_bind(exchange='article',
-                                    queue='article_body',
-                                    routing_key='body')
+        produce_channel = connection.channel()
+        produce_channel.queue_declare('article_body')
         article_text = json.dumps(message)
-        produce_channel.basic_publish(exchange='article',
-                              routing_key='body',
-                              body=article_text,
-                              properties=pika.BasicProperties(delivery_mode=2))
+        produce_channel.basic_publish(exchange='',
+                              routing_key='article_body',
+                              body=article_text)
         log.info('已经放入清洗队列')
         ch.basic_ack(delivery_tag=method.delivery_tag)
