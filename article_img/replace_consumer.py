@@ -31,6 +31,15 @@ class CleanUp:
         channel.start_consuming()
 
     def image_check(self,image_url_list,message,method,ch,article,pattern):
+        if message['title_img'] is not None:
+            img = message['title_img']
+            title_img = qiniufetch(img, img)
+            connection.process_data_events()
+            if title_img is False:
+                log.info("{}封面图片提取失败".format(article.title))
+            else:
+                message['title_img'] = title_img
+                log.info("已上传{}封面图片".format(message['title']))
         if len(image_url_list) == 0:
             detail_url = message.pop('detail_url')
             news = Article(message['source'])  # 删除消息中detail_url字段
@@ -45,6 +54,7 @@ class CleanUp:
             except ReplaceException as e:
                 log.error('图片替换失败{}'.format(e))
                 ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
             message['body'] = new_body
             news = Article(message['source'])
             news.dict_to_attr(message)
@@ -55,6 +65,7 @@ class CleanUp:
     def image_download(self,ch, method, properties, body):
         message = json.loads(body.decode())
         article = message['body']
+
         try:
             if re.findall('data-src="(.*?)"', article):
                 pattern = 'data-src="(.*?)"'
