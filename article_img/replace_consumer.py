@@ -12,24 +12,27 @@ log = LogHandler("img_replace")
 rabbit = Rabbit(setting['rabbitmq_host'], setting['rabbitmq_port'])
 connection = rabbit.connection
 
+
 class ReplaceException(Exception):
-    def __init__(self,err):
+    def __init__(self, err):
         self.err = err
+
     def __str__(self):
-        return str(self.err)
+        return '文章图像替换错误'
+
 
 class CleanUp:
-
     def start_consume(self):
         channel = connection.channel()
         channel.queue_declare(queue='article_body')
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(self.image_download,
-                                   queue='article_body',
-                                   no_ack=False)
+                              queue='article_body',
+                              no_ack=False)
 
         channel.start_consuming()
 
+<<<<<<< HEAD
     def image_check(self,image_url_list,message,method,ch,article,pattern):
         if message['title_img'] is not None:
             img = message['title_img']
@@ -40,13 +43,14 @@ class CleanUp:
             else:
                 message['title_img'] = title_img
                 log.info("已上传{}封面图片".format(message['title']))
+=======
+    def image_check(self, image_url_list, message, method, ch, article, pattern): # 图片替换检查
+>>>>>>> d613085baa913fb0cc894fe9ba4494493670f56f
         if len(image_url_list) == 0:
+            self.news_insert(message)
             detail_url = message.pop('detail_url')
-            news = Article(message['source'])  # 删除消息中detail_url字段
-            news.dict_to_attr(message)
-            news.insert_db()
-            ch.basic_ack(delivery_tag=method.delivery_tag)
             log.info('{}无图片可更换！'.format(detail_url))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
             detail_url = message.pop('detail_url')
             try:
@@ -56,13 +60,18 @@ class CleanUp:
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 return
             message['body'] = new_body
-            news = Article(message['source'])
-            news.dict_to_attr(message)
-            news.insert_db()
+            self.news_insert(message)
             ch.basic_ack(delivery_tag=method.delivery_tag)
             log.info('{}已入库'.format(detail_url))
 
-    def image_download(self,ch, method, properties, body):
+    @staticmethod
+    def news_insert(message): # 数据入库
+        news = Article(message['source'])
+        news.dict_to_attr(message)
+        news.insert_db()
+
+
+    def image_download(self, ch, method, properties, body):
         message = json.loads(body.decode())
         article = message['body']
 
@@ -70,28 +79,22 @@ class CleanUp:
             if re.findall('data-src="(.*?)"', article):
                 pattern = 'data-src="(.*?)"'
                 image_url_list = re.findall('data-src="(.*?)"', article)
-                self.image_check(image_url_list,message,method,ch,article,pattern)
+                self.image_check(image_url_list, message, method, ch, article, pattern)
             else:
                 image_url_list = re.findall('src="(.*?)"', article)
                 pattern = 'src="(.*?)"'
-                self.image_check(image_url_list,message,method,ch,article,pattern)
+                self.image_check(image_url_list, message, method, ch, article, pattern)
         except Exception as e:
-            log.error("{}文章文本提取有误{}".format(message['detail_url'],e))
+            log.error("{}文章文本提取有误{}".format(message['detail_url'], e))
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
     @staticmethod
-    def replace(matchobj):
-        image_url = matchobj.group(1)
+    def replace(match_object):
+        image_url = match_object.group(1)
         connection.process_data_events()
         image_new_url = qiniufetch(image_url, image_url)
         connection.process_data_events()
         if image_new_url is False:
-            raise ReplaceException('ReplaceException')
+            raise ReplaceException
         else:
-            rep = 'src="' + image_new_url + '"'
-        return rep
-
-
-
-
-
+            return 'src="' + image_new_url + '"'
