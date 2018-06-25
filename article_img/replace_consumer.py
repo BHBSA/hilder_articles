@@ -32,7 +32,27 @@ class CleanUp:
 
         channel.start_consuming()
 
-    def image_check(self, image_url_list, message, method, ch, article, pattern):  # 图片替换检查
+    def image_check(self, image_url_list, message, method, ch, article, pattern):
+        """
+        文章图片替换
+        :param image_url_list: 文章body中所有图片
+        :param message:
+        :param method:
+        :param ch:
+        :param article: 文章body
+        :param pattern: 图片替换规则
+        :return:
+        """
+        if message['title_img'] is not None:
+            img = message['title_img']
+            title_img = qiniufetch(img, img)
+            connection.process_data_events()
+            if title_img is False:
+                log.info("{}封面图片提取失败".format(article.title))
+            else:
+                message['title_img'] = title_img
+                log.info("已上传{}封面图片".format(message['title']))
+
         if len(image_url_list) == 0:
             self.news_insert(message)
             detail_url = message.pop('detail_url')
