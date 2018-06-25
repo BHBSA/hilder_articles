@@ -9,6 +9,8 @@ mongo:
 mongo_235:
     config_host: 114.80.150.196
     port: 27017
+    user_name: fangjia
+    password: fangjia123456
     config_db : test
     coll_detail : detail_config
     coll_list : list_config
