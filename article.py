@@ -29,7 +29,8 @@ class Article:
 
     def __init__(self, source, url=None, title=None, body=None, article_id=None, post_time=None, title_img=None,
                  comment_count=None, like_count=None, author=None, read_num=None, crawler_time=None,
-                 organization_author=None, city=None, source_detail=None, category=None, tag=None, desc=None):
+                 organization_author=None, city=None, source_detail=None, category=None, tag=None, desc=None,
+                 s_post_time=None):
         self.source = source  # 文章来源
         self.url = url  # 链接
         self.title = title  # 标题
@@ -49,6 +50,7 @@ class Article:
         self.category = category  # 分类
         self.tag = tag  # 标签
         self.desc = desc  # 简介
+        self.s_post_time = s_post_time
 
     def insert_db(self):
         data = serialization_info(self)
