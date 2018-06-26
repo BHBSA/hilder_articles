@@ -12,8 +12,9 @@ from article_img.qiniu_fetch import qiniufetch
 
 setting = yaml.load(open('config_local.yaml'))
 
-m = MongoClient(setting['mongo_235']['config_host'], setting['mongo_235']['port'])
-collection = m[setting['mongo_235']['config_db']][setting['mongo_235']['coll_list']]
+m = MongoClient(setting['mongo_config']['config_host'], setting['mongo_config']['port'])
+m.admin.authenticate(setting['mongo_config']['user_name'],setting['mongo_config']['password'] )
+collection = m[setting['mongo_config']['config_db']][setting['mongo_config']['coll_list']]
 
 bf = BloomFilter(host=setting['redies_host'],
                  port=setting['redis_port'],
@@ -79,7 +80,7 @@ class CrawlerArticleListUrl:
                     try:
                         article.post_time = single_article.xpath(source['post_time'])[0].strip()
                     except:
-                        log.error('post_time解析失败')
+                        log.info('post_time解析失败')
                         article.post_time = None
                 if source['desc'] is not None:
                     try:

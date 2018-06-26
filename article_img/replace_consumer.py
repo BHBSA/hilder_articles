@@ -5,6 +5,8 @@ from lib.log import LogHandler
 from lib.rabbitmq import Rabbit
 import json
 from article import Article
+import datetime
+import time
 
 setting = yaml.load(open('config_local.yaml'))
 log = LogHandler("img_replace")
@@ -72,7 +74,12 @@ class CleanUp:
             log.info('{}已入库'.format(detail_url))
 
     @staticmethod
-    def news_insert(message):  # 数据入库
+    def news_insert(message):
+        """
+        数据入库
+        :param message:
+        :return:
+        """
         news = Article(message['source'])
         news.dict_to_attr(message)
         news.insert_db()
@@ -80,7 +87,7 @@ class CleanUp:
     def image_download(self, ch, method, properties, body):
         message = json.loads(body.decode())
         article = message['body']
-
+        message = self.post_time_standard(message)
         try:
             if re.findall('data-src="(.*?)"', article):
                 pattern = 'data-src="(.*?)"'
@@ -104,3 +111,21 @@ class CleanUp:
             raise ReplaceException
         else:
             return 'src="' + image_new_url + '"'
+
+    def post_time_standard(self,message):
+        """
+        post_time标准化
+        :param message:
+        :return:
+        """
+        try:
+            post_time = re.search('\d+-\d+-\d+',message['post_time'].strip()).group(0)
+            t = time.strptime(post_time, "%Y-%m-%d")
+            y = t.tm_year
+            m = t.tm_mon
+            d = t.tm_mday
+            message['s_post_time'] = datetime.datetime(y, m, d)
+        except:
+            log.error("发表时间正则匹配失败{}".format(message['post_time']))
+            message['s_post_time'] = None
+        return message
