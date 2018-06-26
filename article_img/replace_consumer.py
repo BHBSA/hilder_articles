@@ -16,9 +16,6 @@ connection = rabbit.connection
 
 
 class ReplaceException(Exception):
-    def __init__(self, err):
-        self.err = err
-
     def __str__(self):
         return '文章图像替换错误'
 
@@ -58,10 +55,12 @@ class CleanUp:
         if len(image_url_list) == 0:
             self.news_insert(message)
             detail_url = message.pop('detail_url')
+            message['url'] = detail_url
             log.info('{}无图片可更换！'.format(detail_url))
             ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
             detail_url = message.pop('detail_url')
+            message['url'] = detail_url
             try:
                 new_body = re.sub(pattern, self.replace, article)
             except ReplaceException as e:
@@ -98,7 +97,7 @@ class CleanUp:
                 pattern = 'src="(.*?)"'
                 self.image_check(image_url_list, message, method, ch, article, pattern)
         except Exception as e:
-            log.error("{}文章文本提取有误{}".format(message['detail_url'], e))
+            log.error("{}文章文本提取有误{}".format(message['url'], e))
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
     @staticmethod

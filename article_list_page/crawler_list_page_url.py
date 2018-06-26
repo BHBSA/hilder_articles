@@ -30,7 +30,7 @@ connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbit
 
 class CrawlerArticleListUrl:
     def crawler_url(self):
-        all_dict = collection.find({})
+        all_dict = collection.find({'source':'网易新闻'})
         self.channel = connect.channel()
         for source_dict in cycle(all_dict):
             for info in source_dict['url']:
@@ -56,7 +56,8 @@ class CrawlerArticleListUrl:
             except:
                 log.error('{}标题不符合xpath规则'.format(source['source']))
                 continue
-            # bf
+            if len(article.title) == 0:
+                continue
             if bf.is_contains(article.title):
                 log.info('文章已经在redis存在,标题={}'.format(article.title))
                 continue

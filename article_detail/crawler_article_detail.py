@@ -119,6 +119,9 @@ class CrawlerDetail:
                 message['source_detail'] = page.xpath(detail_config_dict['source_detail'])[0]
         except Exception as e:
             log.error("{}文章解析错误{}".format(message['detail_url'],e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return
+
 
         self.clean(message)
 
