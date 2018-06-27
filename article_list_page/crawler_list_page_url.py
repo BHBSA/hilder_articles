@@ -30,7 +30,7 @@ connect = pika.BlockingConnection(pika.ConnectionParameters(host=setting['rabbit
 
 class CrawlerArticleListUrl:
     def crawler_url(self):
-        all_dict = collection.find({'source':'网易新闻'})
+        all_dict = collection.find({})
         self.channel = connect.channel()
         for source_dict in cycle(all_dict):
             for info in source_dict['url']:

@@ -117,14 +117,28 @@ class CleanUp:
         :param message:
         :return:
         """
-        try:
-            post_time = re.search('\d+-\d+-\d+',message['post_time'].strip()).group(0)
-            t = time.strptime(post_time, "%Y-%m-%d")
-            y = t.tm_year
-            m = t.tm_mon
-            d = t.tm_mday
-            message['s_post_time'] = datetime.datetime(y, m, d)
-        except:
-            log.error("发表时间正则匹配失败{}".format(message['post_time']))
-            message['s_post_time'] = None
+        if message['post_time'] is None:
+            return message
+        elif '年' in message['post_time']:
+            try:
+                post_time = re.search('\d+年\d+月\d+日', message['post_time'].strip()).group(0)
+                t = time.strptime(post_time,"%Y年%m月%d日")
+                y = t.tm_year
+                m = t.tm_mon
+                d = t.tm_mday
+                message['s_post_time'] = datetime.datetime(y, m, d)
+            except:
+                log.error("发表时间正则匹配失败{}".format(message['post_time']))
+                message['s_post_time'] = None
+        else:
+            try:
+                post_time = re.search('\d+-\d+-\d+',message['post_time'].strip()).group(0)
+                t = time.strptime(post_time, "%Y-%m-%d")
+                y = t.tm_year
+                m = t.tm_mon
+                d = t.tm_mday
+                message['s_post_time'] = datetime.datetime(y, m, d)
+            except:
+                log.error("发表时间正则匹配失败{}".format(message['post_time']))
+                message['s_post_time'] = None
         return message
