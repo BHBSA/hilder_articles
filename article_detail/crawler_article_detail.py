@@ -88,7 +88,12 @@ class CrawlerDetail:
         try:
             con = html.content.decode()
         except:
-            con = html.content.decode('gbk')
+            try:
+                con = html.content.decode('gbk')
+            except:
+                log.error('utf-8,gbk编码解析失败')
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
         page = etree.HTML(con)
 
         # 获取详情页的解析方式
