@@ -43,14 +43,14 @@ class CrawlerDetail:
                 post_time = re.search(clean['post_time'],message['post_time'],re.S|re.M).group(1)
                 message['post_time'] = post_time
             except:
-                log.info("post_time正则匹配失败{}".format(message['post_time']))
+                log.info("post_time清洗失败{}".format(message['post_time']))
                 message['post_time'] = None
         if clean['author'] is not None:
             try:
                 author = re.search(clean['author'],message['author']).group(1)
                 message['author'] = author
             except:
-                log.info("作者正则匹配失败{}".format(message['author']))
+                log.info("author清洗失败{}".format(message['author']))
                 message['author'] = None
 
         if clean['source_detail'] is not None:
@@ -58,7 +58,7 @@ class CrawlerDetail:
                 source_detail = re.search(clean['source_detail'],message['source_detail'],re.S|re.M).group(1)
                 message['source_detail'] = source_detail
             except:
-                log.info("详细来源正则匹配失败{}".format(message['source_detail']))
+                log.info("source_detail清洗失败{}".format(message['source_detail']))
                 message['source_detail'] = None
 
         return message
@@ -91,41 +91,49 @@ class CrawlerDetail:
             try:
                 con = html.content.decode('gbk')
             except:
-                log.error('utf-8,gbk编码解析失败')
+                log.error('{}utf-8,gbk编码解析失败'.format(message['detail_url']))
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 return
         page = etree.HTML(con)
 
         # 获取详情页的解析方式
         detail_config_dict = collection.find_one({'source': message['source']})
-        try:
-            if detail_config_dict['body'] is not None:
-                try:
-                    for pattern in detail_config_dict['body']:
-                        if page.xpath(pattern):
-                            article_body = page.xpath(pattern)[0]
-                            message['body'] = etree.tounicode(article_body)
-                            break
-                except:
-                    log.error('xpath语句未能解析body')
-                    ch.basic_ack(delivery_tag=method.delivery_tag)
-                    return
-            if detail_config_dict['comment_count'] is not None:
-                message['comment_count'] = page.xpath(detail_config_dict['comment_count'])[0]
-            if detail_config_dict['like_count'] is not None:
-                message['like_count'] = page.xpath(detail_config_dict['like_count'])[0]
-            if detail_config_dict['read_num'] is not None:
-                message['read_num'] = page.xpath(detail_config_dict['read_num'])[0]
-            if detail_config_dict['author'] is not None:
+
+        if detail_config_dict['body'] is not None:
+            try:
+                for pattern in detail_config_dict['body']:
+                    if page.xpath(pattern):
+                        article_body = page.xpath(pattern)[0]
+                        message['body'] = etree.tounicode(article_body)
+                        break
+            except:
+                log.error('xpath语句未能解析body')
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
+        if detail_config_dict['comment_count'] is not None:
+            message['comment_count'] = page.xpath(detail_config_dict['comment_count'])[0]
+        if detail_config_dict['like_count'] is not None:
+            message['like_count'] = page.xpath(detail_config_dict['like_count'])[0]
+        if detail_config_dict['read_num'] is not None:
+            message['read_num'] = page.xpath(detail_config_dict['read_num'])[0]
+        if detail_config_dict['author'] is not None:
+            try:
                 message['author'] = page.xpath(detail_config_dict['author'])[0]
-            if detail_config_dict['post_time'] is not None:
+            except:
+                log.info("没有提取到{}作者字段".format(message['detail_url']))
+        if detail_config_dict['post_time'] is not None:
+            try:
                 message['post_time'] = page.xpath(detail_config_dict['post_time'])[0]
-            if detail_config_dict['tag'] is not None:
-                message['tag'] = page.xpath(detail_config_dict['tag'])[0]
-            if detail_config_dict['source_detail'] is not None:
+            except:
+                log.info("没有提取到{}文章发表时间".format(message['detail_url']))
+        if detail_config_dict['tag'] is not None:
+            message['tag'] = page.xpath(detail_config_dict['tag'])[0]
+        if detail_config_dict['source_detail'] is not None:
+            try:
                 message['source_detail'] = page.xpath(detail_config_dict['source_detail'])[0]
-        except Exception as e:
-            log.info("{}文章字段解析失败{}".format(message['detail_url'],e))
+            except:
+                log.info("没有提取到{}文章详细来源".format(message['detail_url']))
+
         self.clean(message)
 
         # 放入消息队列做正文替换清洗
